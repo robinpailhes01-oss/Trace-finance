@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Sparkles, Settings2 } from "lucide-react";
+import Link from "next/link";
+import { Sparkles, ArrowRight, Plus } from "lucide-react";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { BalanceCard } from "@/components/BalanceCard";
 import { QuickAdd } from "@/components/QuickAdd";
@@ -39,8 +40,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="mx-auto max-w-xl px-4 pb-32 pt-8 sm:pt-12">
-      {/* Header */}
+    <main className="mx-auto max-w-xl px-4 pb-40 pt-8 sm:pt-12">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="h-11 w-11 rounded-full bg-gradient-to-br from-accent-gold to-accent-green/60 grid place-items-center text-black">
@@ -54,7 +54,6 @@ export default function HomePage() {
         <AccountSwitcher value={account} onChange={setAccount} />
       </header>
 
-      {/* Balance */}
       <div className="mt-6">
         <BalanceCard
           balance={hydrated ? balance : 0}
@@ -65,33 +64,36 @@ export default function HomePage() {
         />
       </div>
 
-      {/* Chart */}
       <div className="mt-5">
         <TrendChart txs={filtered} />
       </div>
 
-      {/* Top categories */}
       <div className="mt-5">
         <CategoryBreakdown txs={filtered} />
       </div>
 
-      {/* Transactions */}
       <section className="mt-7">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium text-white/80">Transactions récentes</h3>
-          <button className="text-xs text-white/40 inline-flex items-center gap-1 hover:text-white/70">
-            <Settings2 size={12} /> Tout voir
-          </button>
+          <h3 className="text-sm font-medium text-white/80">
+            Transactions récentes
+          </h3>
+          <Link
+            href="/history"
+            className="text-xs text-white/60 inline-flex items-center gap-1 hover:text-white"
+          >
+            Tout voir <ArrowRight size={12} />
+          </Link>
         </div>
-        <TransactionList txs={filtered.slice(0, 12)} onRemove={remove} />
+        <TransactionList txs={filtered.slice(0, 6)} onRemove={remove} />
       </section>
 
-      {/* Floating add */}
+      {/* Floating add — offset so it sits above the bottom nav */}
       <button
         onClick={() => openAdd("expense")}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 inline-flex items-center gap-2 rounded-full bg-white text-black px-6 py-3.5 font-medium shadow-2xl shadow-black/40 hover:scale-[1.02] active:scale-95 transition"
+        className="fixed bottom-24 right-5 z-30 h-14 w-14 rounded-full bg-white text-black grid place-items-center shadow-2xl shadow-black/40 hover:scale-[1.05] active:scale-95 transition"
+        aria-label="Ajouter une transaction"
       >
-        <span className="text-xl leading-none">+</span> Ajouter
+        <Plus size={22} />
       </button>
 
       <QuickAdd

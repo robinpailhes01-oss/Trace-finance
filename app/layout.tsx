@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { BottomNav } from "@/components/BottomNav";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
     <html lang="fr" className={inter.variable}>
       <body className="app-bg min-h-screen font-sans antialiased">
         {children}
+        <BottomNav />
       </body>
     </html>
   );

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { AccountType, Transaction } from "./types";
 
-const STORAGE_KEY = "trace.transactions.v1";
+const STORAGE_KEY = "trace.transactions.v2";
 const ACCOUNT_KEY = "trace.account.v1";
 
 function read(): Transaction[] {
