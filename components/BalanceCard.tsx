@@ -22,40 +22,43 @@ export function BalanceCard({
   const animated = useCountUp(balance);
 
   return (
-    <section className="py-10 sm:py-14">
-      <div className="flex flex-col items-center text-center">
-        <p className="label">Total Balance</p>
+    <section className="card-lg p-6 sm:p-8 relative overflow-hidden">
+      {/* Subtle inner glow at top */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-32 w-72 -translate-y-1/2 rounded-full bg-[#4ECCA3]/10 blur-3xl pointer-events-none" />
+
+      <div className="relative flex flex-col items-center text-center">
+        <p className="label">Solde Total</p>
 
         <motion.h1
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="amount amount-hero mt-6 tabular-nums"
+          className="amount amount-hero mt-5 tabular-nums"
         >
           {eur(animated)}
         </motion.h1>
 
-        <div className="mt-10 flex items-center gap-3">
+        <div className="mt-8 flex items-center gap-3 w-full max-w-sm">
           <button
             onClick={onAddIncome}
-            className="pill-dark inline-flex items-center gap-2.5 px-5 py-3 text-sm font-medium"
+            className="btn-green flex-1 inline-flex items-center justify-center gap-2 py-3.5 text-sm font-semibold press"
           >
-            <ArrowDownLeft size={16} strokeWidth={1.8} className="icon-muted" />
+            <ArrowDownLeft size={16} strokeWidth={2.5} />
             Recevoir
           </button>
           <button
             onClick={onAddExpense}
-            className="pill-dark inline-flex items-center gap-2.5 px-5 py-3 text-sm font-medium"
+            className="btn-red flex-1 inline-flex items-center justify-center gap-2 py-3.5 text-sm font-semibold press"
           >
-            <ArrowUpRight size={16} strokeWidth={1.8} className="icon-muted" />
+            <ArrowUpRight size={16} strokeWidth={2.5} />
             Dépenser
           </button>
         </div>
-      </div>
 
-      <div className="mt-10 grid grid-cols-2 gap-3 max-w-md mx-auto">
-        <FlashStat label="Revenus" value={income} tone="green" />
-        <FlashStat label="Dépenses" value={expense} tone="red" />
+        <div className="mt-6 grid grid-cols-2 gap-3 w-full">
+          <FlashStat label="Revenus" value={income} tone="green" />
+          <FlashStat label="Dépenses" value={expense} tone="red" />
+        </div>
       </div>
     </section>
   );
@@ -84,7 +87,7 @@ function FlashStat({
 
   return (
     <div
-      className={`card p-4 text-left ${
+      className={`rounded-2xl border border-white/[0.05] bg-white/[0.02] p-4 text-left ${
         flash ? (tone === "green" ? "flash-green" : "flash-red") : ""
       }`}
     >

@@ -13,6 +13,20 @@ const serif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "Trace — Finance Tracker",
   description: "Track your personal & business finances in one click.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Trace",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport: Viewport = {

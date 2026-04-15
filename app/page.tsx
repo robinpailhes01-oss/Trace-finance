@@ -46,35 +46,47 @@ export default function HomePage() {
   };
 
   return (
-    <main className="mx-auto max-w-xl px-5 pb-40 pt-8 sm:pt-12">
+    <main className="mx-auto max-w-xl px-5 pb-32 pt-8 sm:pt-12">
       <Header account={account} onAccountChange={setAccount} />
-
-      <BalanceCard
-        balance={hydrated ? balance : 0}
-        income={hydrated ? income : 0}
-        expense={hydrated ? expense : 0}
-        onAddIncome={() => openAdd("income")}
-        onAddExpense={() => openAdd("expense")}
-      />
 
       <motion.div
         initial="hidden"
         animate="show"
         variants={{
           hidden: {},
-          show: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+          show: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
         }}
-        className="space-y-6"
       >
-        <motion.div variants={fadeUp}>
+        <motion.div variants={fadeUp} className="mt-6">
+          <BalanceCard
+            balance={hydrated ? balance : 0}
+            income={hydrated ? income : 0}
+            expense={hydrated ? expense : 0}
+            onAddIncome={() => openAdd("income")}
+            onAddExpense={() => openAdd("expense")}
+          />
+        </motion.div>
+
+        <motion.div variants={fadeUp} className="mt-5">
           <TrendChart txs={filtered} />
         </motion.div>
 
-        <motion.div variants={fadeUp}>
+        {/* + Ajouter pill centered under chart */}
+        <motion.div variants={fadeUp} className="mt-5 flex justify-center">
+          <button
+            onClick={() => openAdd("expense")}
+            className="btn-cream press inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold"
+          >
+            <Plus size={16} strokeWidth={2.5} />
+            Ajouter
+          </button>
+        </motion.div>
+
+        <motion.div variants={fadeUp} className="mt-6">
           <CategoryBreakdown txs={filtered} />
         </motion.div>
 
-        <motion.section variants={fadeUp} className="mt-10">
+        <motion.section variants={fadeUp} className="mt-8">
           <div className="flex items-center justify-between mb-3">
             <h3 className="label">Transactions récentes</h3>
             <Link
@@ -87,20 +99,6 @@ export default function HomePage() {
           <TransactionList txs={filtered.slice(0, 6)} onRemove={remove} />
         </motion.section>
       </motion.div>
-
-      {/* FAB */}
-      <button
-        onClick={() => openAdd("expense")}
-        className="press fixed bottom-24 right-5 z-30 h-13 w-13 rounded-full bg-[#F0EDE8] text-[#0A0A0F] grid place-items-center"
-        style={{
-          height: 52,
-          width: 52,
-          boxShadow: "0 8px 30px rgba(0,0,0,0.6), 0 0 24px rgba(78,204,163,0.15)",
-        }}
-        aria-label="Ajouter une transaction"
-      >
-        <Plus size={22} strokeWidth={2.2} />
-      </button>
 
       <QuickAdd
         open={open}
