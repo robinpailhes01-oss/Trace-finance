@@ -34,14 +34,14 @@ const PERIODS: { key: Period; label: string }[] = [
 ];
 
 const DONUT_COLORS = [
-  "#E8C96B",
+  "#F0EDE8",
   "#4ECCA3",
   "#FF6B6B",
-  "#93C5FD",
-  "#C4B5FD",
-  "#FBBF24",
-  "#FB7185",
-  "#34D399",
+  "#C9A84C",
+  "#8A8A95",
+  "#3A3A4A",
+  "#E8C96B",
+  "#55555F",
 ];
 
 export default function StatsPage() {
@@ -144,38 +144,37 @@ export default function StatsPage() {
   }, [filtered, period]);
 
   return (
-    <main className="mx-auto max-w-xl px-4 pb-28 pt-6">
+    <main className="mx-auto max-w-xl px-5 pb-28 pt-6">
       <header className="flex items-center justify-between">
         <Link
           href="/"
-          className="h-10 w-10 grid place-items-center rounded-full bg-white/[0.04] border border-line hover:bg-white/10 press"
+          className="h-10 w-10 grid place-items-center rounded-full hairline-strong hover:bg-white/[0.03] press text-muted"
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={17} strokeWidth={1.8} />
         </Link>
-        <h1 className="text-lg font-semibold">Statistiques</h1>
+        <h1 className="text-sm font-medium text-cream">Statistiques</h1>
         <AccountSwitcher value={account} onChange={setAccount} />
       </header>
 
-      {/* Period selector */}
-      <div className="mt-5 inline-flex rounded-full border border-line bg-white/[0.03] p-1 text-sm">
+      <div className="mt-7 inline-flex rounded-full hairline-strong p-0.5 text-xs">
         {PERIODS.map((p) => {
           const active = period === p.key;
           return (
             <button
               key={p.key}
               onClick={() => setPeriod(p.key)}
-              className={`relative px-4 py-1.5 rounded-full transition-colors ${
-                active ? "text-bg" : "text-white/55"
+              className={`relative px-4 py-1.5 rounded-full transition-colors duration-200 ${
+                active ? "text-bg" : "text-muted"
               }`}
             >
               {active && (
                 <motion.span
                   layoutId="period-pill"
-                  className="absolute inset-0 rounded-full bg-gradient-to-b from-white to-white/85"
-                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                  className="absolute inset-0 rounded-full bg-cream"
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 />
               )}
-              <span className="relative font-semibold">{p.label}</span>
+              <span className="relative font-medium">{p.label}</span>
             </button>
           );
         })}
@@ -183,60 +182,55 @@ export default function StatsPage() {
 
       {/* Trend chart */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mt-5 card-lg p-5"
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="mt-5 card-lg p-6"
       >
-        <div className="flex items-baseline justify-between mb-1">
-          <p className="text-sm font-semibold">Évolution du solde</p>
-          <p className="text-xs text-white/45">
+        <div className="flex items-baseline justify-between mb-3">
+          <p className="text-xs uppercase tracking-[0.22em] text-muted">
+            Évolution
+          </p>
+          <p className="amount text-base tabular-nums">
             {income - expense >= 0 ? "+" : ""}
             {eur(income - expense)}
           </p>
         </div>
-        <div className="h-48">
+        <div className="h-44">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={trend} margin={{ top: 16, right: 4, left: 4, bottom: 0 }}>
+            <AreaChart data={trend} margin={{ top: 12, right: 4, left: 4, bottom: 0 }}>
               <defs>
                 <linearGradient id="gstats" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#4ECCA3" stopOpacity={0.55} />
+                  <stop offset="0%" stopColor="#4ECCA3" stopOpacity={0.12} />
                   <stop offset="100%" stopColor="#4ECCA3" stopOpacity={0} />
                 </linearGradient>
-                <filter id="stats-glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
               </defs>
               <XAxis dataKey="label" hide />
               <YAxis hide domain={["auto", "auto"]} />
               <Tooltip
-                cursor={{ stroke: "#4ECCA360", strokeDasharray: "4 4" }}
+                cursor={{ stroke: "#2A2A3A", strokeDasharray: "3 3" }}
                 contentStyle={{
                   background: "#12121A",
-                  border: "1px solid #2A2A3E",
-                  borderRadius: 12,
+                  border: "1px solid #1E1E28",
+                  borderRadius: 10,
                   fontSize: 12,
-                  color: "#f5f5f7",
+                  color: "#F0EDE8",
+                  padding: "8px 12px",
                 }}
-                labelStyle={{ color: "#ffffff70" }}
+                labelStyle={{ color: "#8A8A95" }}
                 formatter={(v: number) => [eur(v), "Cumul"]}
               />
               <Area
                 type="monotone"
                 dataKey="running"
                 stroke="#4ECCA3"
-                strokeWidth={2.5}
+                strokeWidth={1.5}
                 fill="url(#gstats)"
-                filter="url(#stats-glow)"
                 dot={false}
                 activeDot={{
-                  r: 5,
+                  r: 4,
                   stroke: "#4ECCA3",
-                  strokeWidth: 2,
+                  strokeWidth: 1.5,
                   fill: "#0A0A0F",
                 }}
                 isAnimationActive
@@ -249,80 +243,84 @@ export default function StatsPage() {
       </motion.div>
 
       {/* Income vs Expense bars */}
-      <div className="mt-5 card-lg p-5">
-        <div className="flex items-baseline justify-between mb-3">
-          <p className="text-sm font-semibold">Revenus vs Dépenses</p>
-          <p className="text-xs text-white/45">Sur la période</p>
+      <div className="mt-5 card-lg p-6">
+        <div className="flex items-baseline justify-between mb-4">
+          <p className="text-xs uppercase tracking-[0.22em] text-muted">
+            Revenus vs Dépenses
+          </p>
         </div>
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="rounded-2xl bg-accent-green/10 border border-accent-green/25 p-3">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-white/55">
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="card p-4">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
               Revenus
             </p>
-            <p className="amount mt-1 text-xl text-positive tabular-nums">
+            <p className="amount mt-2 text-xl text-positive tabular-nums">
               +{eur(income).replace("€", "")}€
             </p>
           </div>
-          <div className="rounded-2xl bg-accent-red/10 border border-accent-red/25 p-3">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-white/55">
+          <div className="card p-4">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
               Dépenses
             </p>
-            <p className="amount mt-1 text-xl text-negative tabular-nums">
+            <p className="amount mt-2 text-xl text-negative tabular-nums">
               −{eur(expense).replace("€", "")}€
             </p>
           </div>
         </div>
-        <div className="h-48">
+        <div className="h-44">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weeklyCompare} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1E1E28" vertical={false} />
               <XAxis
                 dataKey="label"
-                tick={{ fill: "#ffffff55", fontSize: 10 }}
+                tick={{ fill: "#8A8A95", fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis
-                tick={{ fill: "#ffffff40", fontSize: 10 }}
+                tick={{ fill: "#55555F", fontSize: 10 }}
                 tickLine={false}
                 axisLine={false}
               />
               <Tooltip
-                cursor={{ fill: "#ffffff08" }}
+                cursor={{ fill: "#ffffff05" }}
                 contentStyle={{
                   background: "#12121A",
-                  border: "1px solid #2A2A3E",
-                  borderRadius: 12,
+                  border: "1px solid #1E1E28",
+                  borderRadius: 10,
                   fontSize: 12,
-                  color: "#f5f5f7",
+                  color: "#F0EDE8",
+                  padding: "8px 12px",
                 }}
                 formatter={(v: number, name) => [eur(v), name as string]}
               />
-              <Legend wrapperStyle={{ fontSize: 11, color: "#ffffff80" }} iconType="circle" />
-              <Bar dataKey="Revenus" fill="#4ECCA3" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="Dépenses" fill="#FF6B6B" radius={[6, 6, 0, 0]} />
+              <Legend wrapperStyle={{ fontSize: 11, color: "#8A8A95" }} iconType="circle" />
+              <Bar dataKey="Revenus" fill="#4ECCA3" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Dépenses" fill="#FF6B6B" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Donut */}
-      <div className="mt-5 card-lg p-5">
-        <p className="text-sm font-semibold mb-3">Répartition des dépenses</p>
+      <div className="mt-5 card-lg p-6">
+        <p className="text-xs uppercase tracking-[0.22em] text-muted mb-4">
+          Répartition
+        </p>
         {donut.length === 0 ? (
-          <p className="text-sm text-white/40 py-6 text-center">
+          <p className="text-sm text-muted py-6 text-center">
             Aucune dépense sur la période
           </p>
         ) : (
           <div className="flex items-center gap-4">
-            <div className="h-48 w-48 shrink-0 relative">
+            <div className="h-44 w-44 shrink-0 relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={donut}
                     dataKey="value"
-                    innerRadius={55}
-                    outerRadius={85}
+                    innerRadius={52}
+                    outerRadius={80}
                     paddingAngle={2}
                     stroke="none"
                   >
@@ -333,10 +331,11 @@ export default function StatsPage() {
                   <Tooltip
                     contentStyle={{
                       background: "#12121A",
-                      border: "1px solid #2A2A3E",
-                      borderRadius: 12,
+                      border: "1px solid #1E1E28",
+                      borderRadius: 10,
                       fontSize: 12,
-                      color: "#f5f5f7",
+                      color: "#F0EDE8",
+                      padding: "8px 12px",
                     }}
                     formatter={(v: number, _, item: any) => [
                       eur(v),
@@ -347,24 +346,24 @@ export default function StatsPage() {
               </ResponsiveContainer>
               <div className="absolute inset-0 grid place-items-center pointer-events-none">
                 <div className="text-center">
-                  <p className="text-[10px] uppercase tracking-wider text-white/45">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
                     Total
                   </p>
-                  <p className="amount text-base tabular-nums">{eur(expense)}</p>
+                  <p className="amount text-base tabular-nums mt-1">{eur(expense)}</p>
                 </div>
               </div>
             </div>
-            <ul className="flex-1 space-y-1.5 text-sm min-w-0">
+            <ul className="flex-1 space-y-2 text-sm min-w-0">
               {donut.slice(0, 6).map((d, i) => (
                 <li key={d.key} className="flex items-center gap-2 min-w-0">
                   <span
-                    className="h-2.5 w-2.5 rounded-full shrink-0"
+                    className="h-2 w-2 rounded-full shrink-0"
                     style={{ background: DONUT_COLORS[i % DONUT_COLORS.length] }}
                   />
-                  <span className="truncate text-white/80">
+                  <span className="truncate text-cream">
                     {d.emoji} {d.label}
                   </span>
-                  <span className="ml-auto tabular-nums text-white/60 shrink-0">
+                  <span className="ml-auto tabular-nums text-muted shrink-0 text-xs">
                     {eur(d.value)}
                   </span>
                 </li>

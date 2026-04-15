@@ -11,22 +11,22 @@ export function AccountSwitcher({
   onChange: (a: AccountType) => void;
 }) {
   return (
-    <div className="relative inline-flex items-center gap-1 rounded-full border border-line bg-white/[0.03] p-1 text-xs backdrop-blur">
+    <div className="relative inline-flex items-center rounded-full hairline-strong p-0.5 text-xs">
       {(["perso", "pro"] as AccountType[]).map((opt) => {
         const active = value === opt;
         return (
           <button
             key={opt}
             onClick={() => onChange(opt)}
-            className={`relative z-10 px-3 py-1.5 rounded-full capitalize font-medium transition-colors ${
-              active ? "text-bg" : "text-white/55 hover:text-white"
+            className={`relative z-10 px-3 py-1.5 rounded-full capitalize font-medium transition-colors duration-200 ${
+              active ? "text-bg" : "text-muted hover:text-cream"
             }`}
           >
             {active && (
               <motion.span
                 layoutId="account-pill"
-                className="absolute inset-0 rounded-full bg-gradient-to-b from-white to-white/85"
-                transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                className="absolute inset-0 rounded-full bg-cream"
+                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
               />
             )}
             <span className="relative z-10">{opt}</span>

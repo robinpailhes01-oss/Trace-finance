@@ -40,49 +40,48 @@ export default function HomePage() {
   };
 
   return (
-    <main className="mx-auto max-w-xl px-4 pb-40 pt-8 sm:pt-12">
+    <main className="mx-auto max-w-xl px-5 pb-40 pt-8 sm:pt-12">
       <Header account={account} onAccountChange={setAccount} />
 
-      <div className="mt-6">
-        <BalanceCard
-          balance={hydrated ? balance : 0}
-          income={hydrated ? income : 0}
-          expense={hydrated ? expense : 0}
-          onAddIncome={() => openAdd("income")}
-          onAddExpense={() => openAdd("expense")}
-        />
-      </div>
+      <BalanceCard
+        balance={hydrated ? balance : 0}
+        income={hydrated ? income : 0}
+        expense={hydrated ? expense : 0}
+        onAddIncome={() => openAdd("income")}
+        onAddExpense={() => openAdd("expense")}
+      />
 
-      <div className="mt-5">
+      <div className="mt-6">
         <TrendChart txs={filtered} />
       </div>
 
-      <div className="mt-5">
+      <div className="mt-6">
         <CategoryBreakdown txs={filtered} />
       </div>
 
-      <section className="mt-7">
+      <section className="mt-10">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-white/80">
+          <h3 className="text-xs uppercase tracking-[0.22em] text-muted">
             Transactions récentes
           </h3>
           <Link
             href="/history"
-            className="text-xs text-white/60 inline-flex items-center gap-1 hover:text-white press"
+            className="text-xs text-muted inline-flex items-center gap-1 hover:text-cream press"
           >
-            Tout voir <ArrowRight size={12} />
+            Tout voir <ArrowRight size={11} />
           </Link>
         </div>
         <TransactionList txs={filtered.slice(0, 6)} onRemove={remove} />
       </section>
 
-      {/* Floating add button — gold gradient */}
+      {/* FAB — sober pill */}
       <button
         onClick={() => openAdd("expense")}
-        className="btn-gold press fixed bottom-24 right-5 z-30 h-14 w-14 rounded-full grid place-items-center"
+        className="press fixed bottom-24 right-5 z-30 h-13 w-13 rounded-full bg-cream text-bg grid place-items-center shadow-[0_8px_30px_rgba(0,0,0,0.6)]"
+        style={{ height: 52, width: 52 }}
         aria-label="Ajouter une transaction"
       >
-        <Plus size={24} strokeWidth={2.6} />
+        <Plus size={22} strokeWidth={2.2} />
       </button>
 
       <QuickAdd

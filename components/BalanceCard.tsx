@@ -22,47 +22,47 @@ export function BalanceCard({
   const display = eur(animated);
 
   return (
-    <section className="relative overflow-hidden card-lg sheen p-7 sm:p-9">
-      {/* Ambient halo */}
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-72 w-72 rounded-full bg-accent-green/10 blur-3xl" />
-
-      <div className="relative flex flex-col items-center text-center">
-        <p className="text-[11px] uppercase tracking-[0.24em] text-white/45">
+    <section className="py-10 sm:py-14">
+      <div className="flex flex-col items-center text-center">
+        <p className="text-[11px] uppercase tracking-[0.3em] text-muted">
           Solde total
         </p>
 
         <motion.h1
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className={`amount mt-3 text-6xl sm:text-7xl tabular-nums ${
-            balance >= 0 ? "text-positive" : "text-negative"
-          }`}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="amount mt-5 text-[64px] sm:text-[88px] leading-none tabular-nums"
         >
           {display}
         </motion.h1>
 
-        <div className="mt-7 flex items-center gap-3 w-full max-w-sm">
+        <div className="mt-10 flex items-center gap-3">
           <button
             onClick={onAddIncome}
-            className="btn-green press flex-1 inline-flex items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold"
+            className="pill press inline-flex items-center gap-2.5 px-5 py-3 text-sm font-medium"
           >
-            <ArrowDownLeft size={16} strokeWidth={2.5} />
+            <span className="dot-green h-6 w-6 grid place-items-center rounded-full">
+              <ArrowDownLeft size={13} strokeWidth={2.5} />
+            </span>
             Recevoir
           </button>
           <button
             onClick={onAddExpense}
-            className="btn-red press flex-1 inline-flex items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold"
+            className="pill press inline-flex items-center gap-2.5 px-5 py-3 text-sm font-medium"
           >
-            <ArrowUpRight size={16} strokeWidth={2.5} />
+            <span className="dot-red h-6 w-6 grid place-items-center rounded-full">
+              <ArrowUpRight size={13} strokeWidth={2.5} />
+            </span>
             Dépenser
           </button>
         </div>
+      </div>
 
-        <div className="mt-7 grid grid-cols-2 gap-3 w-full">
-          <Stat label="Revenus" value={income} tone="green" />
-          <Stat label="Dépenses" value={expense} tone="red" />
-        </div>
+      {/* Subtle stats row */}
+      <div className="mt-10 grid grid-cols-2 gap-3 max-w-md mx-auto">
+        <Stat label="Revenus" value={income} tone="green" />
+        <Stat label="Dépenses" value={expense} tone="red" />
       </div>
     </section>
   );
@@ -79,11 +79,11 @@ function Stat({
 }) {
   return (
     <div className="card p-4 text-left">
-      <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+      <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
         {label}
       </p>
       <p
-        className={`amount mt-1.5 text-2xl tabular-nums ${
+        className={`amount mt-2 text-2xl tabular-nums ${
           tone === "green" ? "text-positive" : "text-negative"
         }`}
       >

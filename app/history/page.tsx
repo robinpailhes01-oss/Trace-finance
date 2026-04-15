@@ -71,32 +71,32 @@ export default function HistoryPage() {
   }, [filtered]);
 
   return (
-    <main className="mx-auto max-w-xl px-4 pb-28 pt-6">
+    <main className="mx-auto max-w-xl px-5 pb-28 pt-6">
       <header className="flex items-center justify-between">
         <Link
           href="/"
-          className="h-10 w-10 grid place-items-center rounded-full bg-white/[0.04] border border-line hover:bg-white/10 press"
+          className="h-10 w-10 grid place-items-center rounded-full hairline-strong hover:bg-white/[0.03] press text-muted"
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={17} strokeWidth={1.8} />
         </Link>
-        <h1 className="text-lg font-semibold">Historique</h1>
+        <h1 className="text-sm font-medium text-cream">Historique</h1>
         <AccountSwitcher value={account} onChange={setAccount} />
       </header>
 
-      <div className="mt-5 relative">
+      <div className="mt-7 relative">
         <Search
-          size={16}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40"
+          size={15}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-muted"
         />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Rechercher par description ou catégorie"
-          className="w-full rounded-full bg-white/[0.04] border border-line pl-10 pr-4 py-3 text-sm placeholder:text-white/30 focus:outline-none focus:border-white/25"
+          placeholder="Rechercher"
+          className="w-full rounded-full bg-transparent hairline-strong pl-10 pr-4 py-3 text-sm placeholder:text-muted focus:outline-none focus:border-cream/30"
         />
       </div>
 
-      <div className="mt-3 inline-flex rounded-full border border-line bg-white/[0.03] p-1 text-sm">
+      <div className="mt-4 inline-flex rounded-full hairline-strong p-0.5 text-xs">
         {([
           { key: "all", label: "Tout" },
           { key: "income", label: "Revenus" },
@@ -107,55 +107,55 @@ export default function HistoryPage() {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`relative px-4 py-1.5 rounded-full transition-colors ${
-                active ? "text-bg" : "text-white/55"
+              className={`relative px-4 py-1.5 rounded-full transition-colors duration-200 ${
+                active ? "text-bg" : "text-muted"
               }`}
             >
               {active && (
                 <motion.span
                   layoutId="filter-pill"
-                  className="absolute inset-0 rounded-full bg-gradient-to-b from-white to-white/85"
-                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                  className="absolute inset-0 rounded-full bg-cream"
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 />
               )}
-              <span className="relative font-semibold">{f.label}</span>
+              <span className="relative font-medium">{f.label}</span>
             </button>
           );
         })}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="card p-3">
-          <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <div className="card p-4">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
             Revenus
           </p>
-          <p className="amount mt-1 text-xl text-positive tabular-nums">
+          <p className="amount mt-2 text-xl text-positive tabular-nums">
             +{eur(totals.i).replace("€", "")}€
           </p>
         </div>
-        <div className="card p-3">
-          <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+        <div className="card p-4">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
             Dépenses
           </p>
-          <p className="amount mt-1 text-xl text-negative tabular-nums">
+          <p className="amount mt-2 text-xl text-negative tabular-nums">
             −{eur(totals.e).replace("€", "")}€
           </p>
         </div>
       </div>
 
-      <section className="mt-6 space-y-6">
+      <section className="mt-7 space-y-7">
         {groups.length === 0 && (
-          <div className="card p-8 text-center text-white/50 text-sm">
+          <div className="card p-10 text-center text-muted text-sm">
             Aucune transaction
           </div>
         )}
         <AnimatePresence initial={false}>
           {groups.map((g) => (
             <motion.div key={g.date} layout>
-              <p className="text-[11px] uppercase tracking-wider text-white/45 mb-2">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-muted mb-3">
                 {labelFor(g.date)}
               </p>
-              <ul className="space-y-2">
+              <ul className="card divide-y divide-line overflow-hidden">
                 <AnimatePresence initial={false}>
                   {g.items.map((t) => {
                     const cat = findCategory(t.account, t.category);
@@ -163,29 +163,24 @@ export default function HistoryPage() {
                       <motion.li
                         key={t.id}
                         layout
-                        initial={{ opacity: 0, y: 6 }}
+                        initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -60 }}
-                        className="group flex items-center gap-3 card px-4 py-3"
+                        exit={{ opacity: 0, x: -40 }}
+                        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                        className="group flex items-center gap-3 px-4 py-3.5"
                       >
-                        <div
-                          className={`h-10 w-10 shrink-0 rounded-full grid place-items-center text-lg ${
-                            t.type === "income"
-                              ? "bg-accent-green/15 ring-1 ring-accent-green/25"
-                              : "bg-white/5 ring-1 ring-white/5"
-                          }`}
-                        >
+                        <div className="h-9 w-9 shrink-0 rounded-full bg-[#0F0F16] hairline grid place-items-center text-base">
                           {cat?.emoji ?? "💸"}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium truncate">
+                          <p className="text-sm font-medium text-cream truncate">
                             {t.note?.length ? t.note : cat?.label ?? "Transaction"}
                           </p>
-                          <p className="text-xs text-white/40 mt-0.5">{cat?.label}</p>
+                          <p className="text-[11px] text-muted mt-0.5">{cat?.label}</p>
                         </div>
                         <p
                           className={`amount text-lg tabular-nums ${
-                            t.type === "income" ? "text-positive" : "text-white"
+                            t.type === "income" ? "text-positive" : "text-cream"
                           }`}
                         >
                           {t.type === "income" ? "+" : "−"}
@@ -193,10 +188,10 @@ export default function HistoryPage() {
                         </p>
                         <button
                           onClick={() => remove(t.id)}
-                          className="h-8 w-8 grid place-items-center rounded-full bg-white/5 hover:bg-accent-red/20 hover:text-accent-red press"
+                          className="h-7 w-7 grid place-items-center rounded-full hover:bg-accent-red/15 hover:text-accent-red press text-muted"
                           aria-label="Supprimer"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={13} />
                         </button>
                       </motion.li>
                     );

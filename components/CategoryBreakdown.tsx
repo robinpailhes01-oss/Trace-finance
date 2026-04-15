@@ -25,32 +25,34 @@ export function CategoryBreakdown({ txs }: { txs: Transaction[] }) {
   if (items.length === 0) return null;
 
   return (
-    <div className="card-lg p-5">
-      <p className="text-sm font-semibold mb-3">Top dépenses</p>
-      <ul className="space-y-3">
+    <div className="card-lg p-6">
+      <p className="text-xs uppercase tracking-[0.22em] text-muted mb-5">
+        Top dépenses
+      </p>
+      <ul className="space-y-4">
         {items.map((it, idx) => {
           const cat = findCategory(txs[0]?.account ?? "perso", it.key);
           return (
             <li key={it.key}>
               <div className="flex items-center justify-between text-sm">
-                <span>
+                <span className="text-cream">
                   <span className="mr-2">{cat?.emoji ?? "💸"}</span>
                   {cat?.label ?? it.key}
                 </span>
-                <span className="amount text-base text-white/80 tabular-nums">
+                <span className="amount text-base tabular-nums">
                   {eur(it.value)}
                 </span>
               </div>
-              <div className="mt-1.5 h-1.5 w-full rounded-full bg-white/[0.06] overflow-hidden">
+              <div className="mt-2 h-px w-full bg-line overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${Math.max(8, it.pct * 100)}%` }}
+                  animate={{ width: `${Math.max(6, it.pct * 100)}%` }}
                   transition={{
-                    duration: 0.7,
-                    delay: 0.05 * idx,
+                    duration: 0.8,
+                    delay: 0.06 * idx,
                     ease: [0.22, 1, 0.36, 1],
                   }}
-                  className="h-full rounded-full bg-gradient-to-r from-accent-gold to-accent-goldLight"
+                  className="h-[2px] -mt-px rounded-full bg-cream"
                 />
               </div>
             </li>

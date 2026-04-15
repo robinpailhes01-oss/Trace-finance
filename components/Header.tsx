@@ -12,13 +12,6 @@ function greeting(hour: number) {
   return "Bonsoir";
 }
 
-function emojiFor(hour: number) {
-  if (hour < 6) return "🌙";
-  if (hour < 12) return "☀️";
-  if (hour < 18) return "👋";
-  return "🌆";
-}
-
 export function Header({
   name = "Robin",
   account,
@@ -39,27 +32,26 @@ export function Header({
   return (
     <header className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="relative h-11 w-11 rounded-full p-[1.5px] bg-gradient-to-br from-accent-goldLight via-accent-gold to-accent-green/70">
-          <div className="h-full w-full rounded-full bg-bg-elevated grid place-items-center">
-            <span className="font-semibold text-sm">{initial}</span>
-          </div>
+        <div className="h-10 w-10 rounded-full bg-[#12121A] hairline-strong grid place-items-center">
+          <span className="font-serif text-base text-cream">{initial}</span>
         </div>
         <div className="min-w-0">
-          <p className="text-[11px] text-white/50 truncate">
-            {hour != null ? `${greeting(hour)} ${emojiFor(hour)}` : " "}
+          <p className="text-[11px] text-muted truncate">
+            {hour != null ? greeting(hour) : " "}
           </p>
-          <h2 className="font-semibold leading-tight truncate">{name}</h2>
+          <h2 className="text-sm font-medium leading-tight truncate text-cream">
+            {name}
+          </h2>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         <AccountSwitcher value={account} onChange={onAccountChange} />
         <button
-          className="relative h-10 w-10 rounded-full grid place-items-center bg-white/[0.04] border border-line hover:bg-white/[0.08] press"
+          className="relative h-10 w-10 rounded-full grid place-items-center hairline-strong hover:bg-white/[0.03] press"
           aria-label="Notifications"
         >
-          <Bell size={16} className="text-white/70" />
-          <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-accent-green shadow-[0_0_6px_rgba(78,204,163,0.8)]" />
+          <Bell size={15} className="text-muted" strokeWidth={1.8} />
         </button>
       </div>
     </header>
