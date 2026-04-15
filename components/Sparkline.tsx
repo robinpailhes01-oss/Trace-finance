@@ -63,13 +63,13 @@ export function Sparkline({
     return () => ro.disconnect();
   }, [height]);
 
-  const { d, meta, lastX, lastY, scaleY } = useMemo(() => {
+  const { d, meta, lastX, lastY } = useMemo(() => {
     const w = size.w;
     const h = size.h;
-    const padX = 8;
-    const padY = 14;
+    const padX = 10;
+    const padY = 16;
     if (points.length === 0) {
-      return { d: "", meta: [] as PointMeta[], lastX: 0, lastY: 0, scaleY: 0 };
+      return { d: "", meta: [] as PointMeta[], lastX: 0, lastY: 0 };
     }
     const min = Math.min(...points.map((p) => p.value));
     const max = Math.max(...points.map((p) => p.value));
@@ -77,34 +77,46 @@ export function Sparkline({
     const stepX = (w - padX * 2) / Math.max(1, points.length - 1);
     const toY = (v: number) => padY + (1 - (v - min) / span) * (h - padY * 2);
 
+    // Smooth cubic via Catmull-Rom to Bezier conversion
+    const pts = points.map((p, i) => ({
+      x: padX + i * stepX,
+      y: toY(p.value),
+    }));
     let path = "";
-    const m: PointMeta[] = [];
-    points.forEach((p, i) => {
-      const x = padX + i * stepX;
-      const y = toY(p.value);
-      m.push({ x, y, date: p.date, value: p.value });
+    pts.forEach((p, i) => {
       if (i === 0) {
-        path += `M${x.toFixed(2)},${y.toFixed(2)}`;
-      } else {
-        const prevX = padX + (i - 1) * stepX;
-        const prevY = toY(points[i - 1].value);
-        const mx = (prevX + x) / 2;
-        const my = (prevY + y) / 2;
-        path += ` Q${prevX.toFixed(2)},${prevY.toFixed(2)} ${mx.toFixed(2)},${my.toFixed(2)}`;
-        if (i === points.length - 1) path += ` T${x.toFixed(2)},${y.toFixed(2)}`;
+        path += `M${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+        return;
       }
+      const p0 = pts[i - 2] ?? pts[i - 1];
+      const p1 = pts[i - 1];
+      const p2 = p;
+      const p3 = pts[i + 1] ?? p;
+      const tension = 0.18;
+      const c1x = p1.x + (p2.x - p0.x) * tension;
+      const c1y = p1.y + (p2.y - p0.y) * tension;
+      const c2x = p2.x - (p3.x - p1.x) * tension;
+      const c2y = p2.y - (p3.y - p1.y) * tension;
+      path += ` C${c1x.toFixed(2)},${c1y.toFixed(2)} ${c2x.toFixed(
+        2,
+      )},${c2y.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)}`;
     });
+
+    const metaArr: PointMeta[] = pts.map((p, i) => ({
+      x: p.x,
+      y: p.y,
+      date: points[i].date,
+      value: points[i].value,
+    }));
 
     return {
       d: path,
-      meta: m,
-      lastX: m[m.length - 1].x,
-      lastY: m[m.length - 1].y,
-      scaleY: span,
+      meta: metaArr,
+      lastX: metaArr[metaArr.length - 1].x,
+      lastY: metaArr[metaArr.length - 1].y,
     };
   }, [points, size]);
 
-  // Path length for draw animation
   useEffect(() => {
     if (pathRef.current) {
       const len = pathRef.current.getTotalLength();
@@ -145,40 +157,32 @@ export function Sparkline({
       >
         <defs>
           <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4ECCA3" stopOpacity="0.28" />
+            <stop offset="0%" stopColor="#4ECCA3" stopOpacity="0.3" />
             <stop offset="100%" stopColor="#4ECCA3" stopOpacity="0" />
           </linearGradient>
-          <filter id="dot-glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
 
         {/* Area fill */}
         {d && (
           <path
-            d={`${d} L${lastX},${size.h} L8,${size.h} Z`}
+            d={`${d} L${lastX},${size.h} L10,${size.h} Z`}
             fill="url(#spark-fill)"
-            opacity={0.95}
           />
         )}
 
-        {/* Line — draw animation */}
+        {/* Line draw */}
         <path
           ref={pathRef}
           d={d}
           fill="none"
           stroke="#4ECCA3"
-          strokeWidth={1.8}
+          strokeWidth={1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{
-            strokeDasharray: pathLen,
-            strokeDashoffset: pathLen,
-            animation: pathLen > 0 ? "spark-draw 1.4s ease-out forwards" : undefined,
+            strokeDasharray: pathLen || undefined,
+            strokeDashoffset: pathLen || undefined,
+            animation: pathLen > 0 ? "spark-draw 1.5s ease-out forwards" : undefined,
           }}
         />
 
@@ -186,10 +190,10 @@ export function Sparkline({
         {active && (
           <line
             x1={active.x}
-            y1={14}
+            y1={16}
             x2={active.x}
-            y2={size.h - 14}
-            stroke="#ffffff15"
+            y2={size.h - 16}
+            stroke="rgba(255,255,255,0.12)"
             strokeDasharray="3 4"
           />
         )}
@@ -197,43 +201,40 @@ export function Sparkline({
         {/* Hover point */}
         {active && (
           <g>
-            <circle cx={active.x} cy={active.y} r={7} fill="#4ECCA3" opacity={0.18} />
+            <circle cx={active.x} cy={active.y} r={9} fill="#4ECCA3" opacity={0.22} />
             <circle
               cx={active.x}
               cy={active.y}
-              r={3.5}
-              fill="#0A0A0F"
+              r={4}
+              fill="#FFFFFF"
               stroke="#4ECCA3"
               strokeWidth={1.6}
             />
           </g>
         )}
 
-        {/* End-point glow (only when no hover) */}
+        {/* End point: 6px white center + 12px teal ring pulse */}
         {d && !active && (
-          <g
-            className="dot-pulse"
-            style={{ transformOrigin: `${lastX}px ${lastY}px` }}
-          >
-            <circle cx={lastX} cy={lastY} r={6} fill="#4ECCA3" opacity={0.22} />
+          <g>
             <circle
               cx={lastX}
               cy={lastY}
-              r={3}
-              fill="#4ECCA3"
-              filter="url(#dot-glow)"
+              r={12}
+              fill="rgba(78,204,163,0.3)"
+              className="dot-ring"
             />
+            <circle cx={lastX} cy={lastY} r={6} fill="#FFFFFF" />
           </g>
         )}
       </svg>
 
-      {/* Tooltip */}
+      {/* Glass tooltip */}
       {active && (
         <div
-          className="pointer-events-none absolute -translate-x-1/2 -translate-y-full rounded-lg border border-white/10 bg-[#12121A]/95 px-2.5 py-1.5 text-[11px] backdrop-blur"
+          className="pointer-events-none absolute -translate-x-1/2 -translate-y-full rounded-xl glass px-3 py-2 text-[11px]"
           style={{
             left: active.x,
-            top: active.y - 8,
+            top: active.y - 10,
             whiteSpace: "nowrap",
           }}
         >
@@ -241,9 +242,10 @@ export function Sparkline({
             {new Date(active.date).toLocaleDateString("fr-FR", {
               day: "numeric",
               month: "short",
+              year: "numeric",
             })}
           </p>
-          <p className="amount text-sm text-[#F0EDE8] tabular-nums">
+          <p className="amount text-base text-[#F0EDE8] tabular-nums">
             {eur(active.value)}
           </p>
         </div>

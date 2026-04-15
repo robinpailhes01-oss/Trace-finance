@@ -7,7 +7,7 @@ function easeOutExpo(t: number) {
   return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
 }
 
-export function useCountUp(target: number, duration = 1200) {
+export function useCountUp(target: number, duration = 1500) {
   const [value, setValue] = useState(target);
   const fromRef = useRef(target);
   const startRef = useRef<number | null>(null);

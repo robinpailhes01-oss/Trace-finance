@@ -14,8 +14,13 @@ import { useAccount, useTransactions } from "@/lib/store";
 import type { TxType } from "@/lib/types";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 8 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+  },
 };
 
 export default function HomePage() {
@@ -47,14 +52,16 @@ export default function HomePage() {
 
   return (
     <main className="mx-auto max-w-xl px-5 pb-32 pt-8 sm:pt-12">
-      <Header account={account} onAccountChange={setAccount} />
+      <motion.div variants={fadeUp} initial="hidden" animate="show">
+        <Header account={account} onAccountChange={setAccount} />
+      </motion.div>
 
       <motion.div
         initial="hidden"
         animate="show"
         variants={{
           hidden: {},
-          show: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
+          show: { transition: { staggerChildren: 0.08, delayChildren: 0.08 } },
         }}
       >
         <motion.div variants={fadeUp} className="mt-6">
@@ -69,17 +76,6 @@ export default function HomePage() {
 
         <motion.div variants={fadeUp} className="mt-5">
           <TrendChart txs={filtered} />
-        </motion.div>
-
-        {/* + Ajouter pill centered under chart */}
-        <motion.div variants={fadeUp} className="mt-5 flex justify-center">
-          <button
-            onClick={() => openAdd("expense")}
-            className="btn-cream press inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold"
-          >
-            <Plus size={16} strokeWidth={2.5} />
-            Ajouter
-          </button>
         </motion.div>
 
         <motion.div variants={fadeUp} className="mt-6">
@@ -99,6 +95,16 @@ export default function HomePage() {
           <TransactionList txs={filtered.slice(0, 6)} onRemove={remove} />
         </motion.section>
       </motion.div>
+
+      {/* Pulsing teal FAB */}
+      <button
+        onClick={() => openAdd("expense")}
+        className="fab fixed right-5 z-40"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
+        aria-label="Ajouter une transaction"
+      >
+        <Plus size={24} strokeWidth={2.4} />
+      </button>
 
       <QuickAdd
         open={open}

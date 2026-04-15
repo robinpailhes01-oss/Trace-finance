@@ -1,13 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import { BottomNav } from "@/components/BottomNav";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const serif = Instrument_Serif({
+const inter = Inter({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-instrument-serif",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  variable: "--font-fraunces",
 });
 
 export const metadata: Metadata = {
@@ -30,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0A0F",
+  themeColor: "#080C0B",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -42,12 +47,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className={`${inter.variable} ${serif.variable}`}>
+    <html lang="fr" className={`${inter.variable} ${fraunces.variable}`}>
       <head>
-        {/* Explicit Apple touch icon for older iOS Safari */}
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className="app-bg min-h-screen font-sans antialiased">
+        <div className="spotlight" aria-hidden />
         {children}
         <BottomNav />
       </body>

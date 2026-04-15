@@ -5,12 +5,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import {
-  Area,
-  AreaChart,
   ResponsiveContainer,
   Tooltip,
-  XAxis,
-  YAxis,
   PieChart,
   Pie,
   Cell,
@@ -18,29 +14,32 @@ import {
   Bar,
   CartesianGrid,
   Legend,
+  XAxis,
+  YAxis,
 } from "recharts";
 import { useAccount, useTransactions } from "@/lib/store";
 import { findCategory } from "@/lib/types";
 import { eur } from "@/lib/format";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
+import { Sparkline } from "@/components/Sparkline";
 
 type Period = "7" | "14" | "30" | "90";
 
 const PERIODS: { key: Period; label: string }[] = [
-  { key: "7", label: "7j" },
-  { key: "14", label: "14j" },
-  { key: "30", label: "30j" },
-  { key: "90", label: "3 mois" },
+  { key: "7", label: "7J" },
+  { key: "14", label: "14J" },
+  { key: "30", label: "30J" },
+  { key: "90", label: "3M" },
 ];
 
 const DONUT_COLORS = [
-  "#F0EDE8",
   "#4ECCA3",
-  "#FF6B6B",
-  "#C9A84C",
-  "#8A8A95",
-  "#3A3A4A",
+  "#2DB4A0",
   "#E8C96B",
+  "#C9A84C",
+  "#F0EDE8",
+  "#8A8A95",
+  "#FF6B6B",
   "#55555F",
 ];
 
@@ -68,36 +67,6 @@ export default function StatsPage() {
     });
     return { income: i, expense: e };
   }, [filtered]);
-
-  const trend = useMemo(() => {
-    const days = parseInt(period, 10);
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    const out: { date: string; label: string; running: number }[] = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      out.push({
-        date: d.toISOString().slice(0, 10),
-        label: d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }),
-        running: 0,
-      });
-    }
-    const idx = new Map(out.map((b, i) => [b.date, i]));
-    const net = new Array(out.length).fill(0);
-    filtered.forEach((t) => {
-      const k = t.date.slice(0, 10);
-      const i = idx.get(k);
-      if (i == null) return;
-      net[i] += t.type === "income" ? t.amount : -t.amount;
-    });
-    let acc = 0;
-    out.forEach((b, i) => {
-      acc += net[i];
-      b.running = acc;
-    });
-    return out;
-  }, [filtered, period]);
 
   const donut = useMemo(() => {
     const map = new Map<string, number>();
@@ -143,20 +112,23 @@ export default function StatsPage() {
     return out;
   }, [filtered, period]);
 
+  const max = Math.max(...weeklyCompare.flatMap((b) => [b.Revenus, b.Dépenses]), 1);
+
   return (
     <main className="mx-auto max-w-xl px-5 pb-28 pt-6">
       <header className="flex items-center justify-between">
         <Link
           href="/"
-          className="h-10 w-10 grid place-items-center rounded-full hairline-strong hover:bg-white/[0.03] press text-muted"
+          className="h-10 w-10 grid place-items-center rounded-full border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] press text-white/80"
         >
           <ArrowLeft size={17} strokeWidth={1.8} />
         </Link>
-        <h1 className="text-sm font-medium text-cream">Statistiques</h1>
+        <h1 className="text-sm font-medium text-[#F0EDE8]">Statistiques</h1>
         <AccountSwitcher value={account} onChange={setAccount} />
       </header>
 
-      <div className="mt-7 inline-flex rounded-full hairline-strong p-0.5 text-xs">
+      {/* Period pills */}
+      <div className="mt-7 inline-flex rounded-full border border-white/10 bg-white/[0.03] p-0.5 text-xs">
         {PERIODS.map((p) => {
           const active = period === p.key;
           return (
@@ -164,151 +136,120 @@ export default function StatsPage() {
               key={p.key}
               onClick={() => setPeriod(p.key)}
               className={`relative px-4 py-1.5 rounded-full transition-colors duration-200 ${
-                active ? "text-bg" : "text-muted"
+                active ? "text-[#4ECCA3]" : "text-white/55"
               }`}
             >
               {active && (
                 <motion.span
                   layoutId="period-pill"
-                  className="absolute inset-0 rounded-full bg-cream"
-                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute inset-0 rounded-full"
+                  style={{ background: "rgba(78,204,163,0.15)" }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 />
               )}
-              <span className="relative font-medium">{p.label}</span>
+              <span className="relative font-semibold">{p.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Trend chart */}
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-5 card-lg p-6"
-      >
+      {/* Trend */}
+      <div className="mt-5 card-lg p-6">
         <div className="flex items-baseline justify-between mb-3">
-          <p className="text-xs uppercase tracking-[0.22em] text-muted">
-            Évolution
-          </p>
-          <p className="amount text-base tabular-nums">
+          <p className="label">Évolution</p>
+          <p
+            className={`amount text-base tabular-nums ${
+              income - expense >= 0 ? "text-positive" : "text-negative"
+            }`}
+          >
             {income - expense >= 0 ? "+" : ""}
             {eur(income - expense)}
           </p>
         </div>
-        <div className="h-44">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={trend} margin={{ top: 12, right: 4, left: 4, bottom: 0 }}>
-              <defs>
-                <linearGradient id="gstats" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#4ECCA3" stopOpacity={0.12} />
-                  <stop offset="100%" stopColor="#4ECCA3" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="label" hide />
-              <YAxis hide domain={["auto", "auto"]} />
-              <Tooltip
-                cursor={{ stroke: "#2A2A3A", strokeDasharray: "3 3" }}
-                contentStyle={{
-                  background: "#12121A",
-                  border: "1px solid #1E1E28",
-                  borderRadius: 10,
-                  fontSize: 12,
-                  color: "#F0EDE8",
-                  padding: "8px 12px",
-                }}
-                labelStyle={{ color: "#8A8A95" }}
-                formatter={(v: number) => [eur(v), "Cumul"]}
-              />
-              <Area
-                type="monotone"
-                dataKey="running"
-                stroke="#4ECCA3"
-                strokeWidth={1.5}
-                fill="url(#gstats)"
-                dot={false}
-                activeDot={{
-                  r: 4,
-                  stroke: "#4ECCA3",
-                  strokeWidth: 1.5,
-                  fill: "#0A0A0F",
-                }}
-                isAnimationActive
-                animationDuration={900}
-                animationEasing="ease-out"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </motion.div>
+        <Sparkline key={period} txs={filtered} days={parseInt(period, 10)} height={150} />
+      </div>
 
-      {/* Income vs Expense bars */}
+      {/* Income vs Expense — animated bars */}
       <div className="mt-5 card-lg p-6">
-        <div className="flex items-baseline justify-between mb-4">
-          <p className="text-xs uppercase tracking-[0.22em] text-muted">
-            Revenus vs Dépenses
-          </p>
-        </div>
+        <p className="label mb-4">Revenus vs Dépenses</p>
         <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="card p-4">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
-              Revenus
-            </p>
-            <p className="amount mt-2 text-xl text-positive tabular-nums">
+          <div className="stat-card stat-card-green p-4">
+            <p className="label">Revenus</p>
+            <p
+              className="amount mt-2 text-xl num-green tabular-nums"
+              style={{ textShadow: "0 0 20px rgba(78,204,163,0.3)" }}
+            >
               +{eur(income).replace("€", "")}€
             </p>
           </div>
-          <div className="card p-4">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
-              Dépenses
-            </p>
-            <p className="amount mt-2 text-xl text-negative tabular-nums">
+          <div className="stat-card stat-card-red p-4">
+            <p className="label">Dépenses</p>
+            <p
+              className="amount mt-2 text-xl num-red tabular-nums"
+              style={{ textShadow: "0 0 20px rgba(255,107,107,0.25)" }}
+            >
               −{eur(expense).replace("€", "")}€
             </p>
           </div>
         </div>
-        <div className="h-44">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weeklyCompare} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E1E28" vertical={false} />
-              <XAxis
-                dataKey="label"
-                tick={{ fill: "#8A8A95", fontSize: 10 }}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                tick={{ fill: "#55555F", fontSize: 10 }}
-                tickLine={false}
-                axisLine={false}
-              />
-              <Tooltip
-                cursor={{ fill: "#ffffff05" }}
-                contentStyle={{
-                  background: "#12121A",
-                  border: "1px solid #1E1E28",
-                  borderRadius: 10,
-                  fontSize: 12,
-                  color: "#F0EDE8",
-                  padding: "8px 12px",
-                }}
-                formatter={(v: number, name) => [eur(v), name as string]}
-              />
-              <Legend wrapperStyle={{ fontSize: 11, color: "#8A8A95" }} iconType="circle" />
-              <Bar dataKey="Revenus" fill="#4ECCA3" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Dépenses" fill="#FF6B6B" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+
+        <ul className="space-y-4">
+          {weeklyCompare.map((b, idx) => (
+            <li key={b.label}>
+              <div className="flex items-center justify-between text-[11px] text-white/55 mb-1.5">
+                <span>{b.label}</span>
+                <span className="tabular-nums">
+                  <span className="text-[#4ECCA3]">+{eur(b.Revenus).replace("€", "")}€</span>
+                  <span className="mx-2 text-white/30">·</span>
+                  <span className="text-[#FF6B6B]">−{eur(b.Dépenses).replace("€", "")}€</span>
+                </span>
+              </div>
+              <div className="space-y-1">
+                <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(b.Revenus / max) * 100}%` }}
+                    transition={{
+                      duration: 0.9,
+                      delay: 0.06 * idx,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="h-full rounded-full"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, rgba(78,204,163,0.9), rgba(78,204,163,0.4))",
+                      boxShadow: "0 0 12px rgba(78,204,163,0.35)",
+                    }}
+                  />
+                </div>
+                <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(b.Dépenses / max) * 100}%` }}
+                    transition={{
+                      duration: 0.9,
+                      delay: 0.06 * idx + 0.05,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="h-full rounded-full"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, rgba(255,107,107,0.9), rgba(255,107,107,0.4))",
+                      boxShadow: "0 0 12px rgba(255,107,107,0.3)",
+                    }}
+                  />
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* Donut */}
       <div className="mt-5 card-lg p-6">
-        <p className="text-xs uppercase tracking-[0.22em] text-muted mb-4">
-          Répartition
-        </p>
+        <p className="label mb-4">Répartition des dépenses</p>
         {donut.length === 0 ? (
-          <p className="text-sm text-muted py-6 text-center">
+          <p className="text-sm text-white/40 py-6 text-center">
             Aucune dépense sur la période
           </p>
         ) : (
@@ -316,26 +257,43 @@ export default function StatsPage() {
             <div className="h-44 w-44 shrink-0 relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
+                  <defs>
+                    {donut.map((_, i) => (
+                      <radialGradient
+                        key={i}
+                        id={`donut-g-${i}`}
+                        cx="50%"
+                        cy="50%"
+                        r="65%"
+                      >
+                        <stop offset="60%" stopColor={DONUT_COLORS[i % DONUT_COLORS.length]} stopOpacity={1} />
+                        <stop offset="100%" stopColor={DONUT_COLORS[i % DONUT_COLORS.length]} stopOpacity={0.6} />
+                      </radialGradient>
+                    ))}
+                  </defs>
                   <Pie
                     data={donut}
                     dataKey="value"
                     innerRadius={52}
-                    outerRadius={80}
+                    outerRadius={82}
                     paddingAngle={2}
                     stroke="none"
+                    animationBegin={0}
+                    animationDuration={900}
                   >
                     {donut.map((_, i) => (
-                      <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
+                      <Cell key={i} fill={`url(#donut-g-${i})`} />
                     ))}
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      background: "#12121A",
-                      border: "1px solid #1E1E28",
-                      borderRadius: 10,
+                      background: "rgba(18,18,26,0.85)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: 12,
                       fontSize: 12,
                       color: "#F0EDE8",
                       padding: "8px 12px",
+                      backdropFilter: "blur(16px)",
                     }}
                     formatter={(v: number, _, item: any) => [
                       eur(v),
@@ -346,9 +304,7 @@ export default function StatsPage() {
               </ResponsiveContainer>
               <div className="absolute inset-0 grid place-items-center pointer-events-none">
                 <div className="text-center">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
-                    Total
-                  </p>
+                  <p className="label">Total</p>
                   <p className="amount text-base tabular-nums mt-1">{eur(expense)}</p>
                 </div>
               </div>
@@ -360,10 +316,10 @@ export default function StatsPage() {
                     className="h-2 w-2 rounded-full shrink-0"
                     style={{ background: DONUT_COLORS[i % DONUT_COLORS.length] }}
                   />
-                  <span className="truncate text-cream">
+                  <span className="truncate text-[#F0EDE8]">
                     {d.emoji} {d.label}
                   </span>
-                  <span className="ml-auto tabular-nums text-muted shrink-0 text-xs">
+                  <span className="ml-auto tabular-nums text-white/55 shrink-0 text-xs">
                     {eur(d.value)}
                   </span>
                 </li>

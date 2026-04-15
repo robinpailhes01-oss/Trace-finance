@@ -22,38 +22,30 @@ export function BalanceCard({
   const animated = useCountUp(balance);
 
   return (
-    <section className="card-lg p-6 sm:p-8 relative overflow-hidden">
-      {/* Subtle inner glow at top */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-32 w-72 -translate-y-1/2 rounded-full bg-[#4ECCA3]/10 blur-3xl pointer-events-none" />
-
+    <section className="card-lg p-7 sm:p-9 relative overflow-hidden">
       <div className="relative flex flex-col items-center text-center">
         <p className="label">Solde Total</p>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="amount amount-hero mt-5 tabular-nums"
-        >
+        <h1 className="amount amount-hero mt-5 tabular-nums">
           {eur(animated)}
-        </motion.h1>
+        </h1>
 
         <div className="mt-8 flex items-center gap-3 w-full max-w-sm">
           <button
             onClick={onAddIncome}
-            className="btn-pill btn-pill-green flex-1 inline-flex items-center justify-center gap-2.5 py-3 text-sm"
+            className="btn-glass btn-glass-green flex-1 inline-flex items-center justify-center gap-2.5 py-3 text-sm"
           >
-            <span className="icon-circle-green h-7 w-7 grid place-items-center rounded-full">
-              <ArrowDownLeft size={14} strokeWidth={2.4} />
+            <span className="icon-circle-green h-6 w-6 grid place-items-center rounded-full">
+              <ArrowDownLeft size={12} strokeWidth={2.6} />
             </span>
             Recevoir
           </button>
           <button
             onClick={onAddExpense}
-            className="btn-pill btn-pill-red flex-1 inline-flex items-center justify-center gap-2.5 py-3 text-sm"
+            className="btn-glass btn-glass-red flex-1 inline-flex items-center justify-center gap-2.5 py-3 text-sm"
           >
-            <span className="icon-circle-red h-7 w-7 grid place-items-center rounded-full">
-              <ArrowUpRight size={14} strokeWidth={2.4} />
+            <span className="icon-circle-red h-6 w-6 grid place-items-center rounded-full">
+              <ArrowUpRight size={12} strokeWidth={2.6} />
             </span>
             Dépenser
           </button>
@@ -83,7 +75,7 @@ function FlashStat({
   useEffect(() => {
     if (prev.current !== value) {
       setFlash(true);
-      const t = setTimeout(() => setFlash(false), 350);
+      const t = setTimeout(() => setFlash(false), 360);
       prev.current = value;
       return () => clearTimeout(t);
     }
@@ -91,7 +83,9 @@ function FlashStat({
 
   return (
     <div
-      className={`rounded-2xl border border-white/[0.05] bg-white/[0.02] p-4 text-left ${
+      className={`stat-card ${
+        tone === "green" ? "stat-card-green" : "stat-card-red"
+      } p-4 text-left ${
         flash ? (tone === "green" ? "flash-green" : "flash-red") : ""
       }`}
     >
@@ -100,6 +94,12 @@ function FlashStat({
         className={`amount mt-2 text-2xl tabular-nums ${
           tone === "green" ? "text-positive" : "text-negative"
         }`}
+        style={{
+          textShadow:
+            tone === "green"
+              ? "0 0 20px rgba(78,204,163,0.3)"
+              : "0 0 20px rgba(255,107,107,0.25)",
+        }}
       >
         {tone === "green" ? "+" : "−"}
         {eur(value).replace("€", "")}€
