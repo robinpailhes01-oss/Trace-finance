@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import { BottomNav } from "@/components/BottomNav";
-import { PageFader } from "@/components/PageFader";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -54,7 +53,7 @@ export default function RootLayout({
       </head>
       <body className="app-bg min-h-screen font-sans antialiased">
         <div className="spotlight" aria-hidden />
-        <PageFader>{children}</PageFader>
+        {children}
         <BottomNav />
       </body>
     </html>

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Search, Trash2 } from "lucide-react";
+import { ArrowLeft, Search, Trash2, Inbox } from "lucide-react";
 import {
   motion,
   AnimatePresence,
@@ -18,9 +18,9 @@ import { haptic } from "@/lib/haptic";
 
 type Filter = "all" | TxType;
 
-function groupByDay(txs: Transaction[]) {
+function groupByDay(list: Transaction[]) {
   const map = new Map<string, Transaction[]>();
-  txs.forEach((t) => {
+  list.forEach((t) => {
     const day = t.date.slice(0, 10);
     const arr = map.get(day) ?? [];
     arr.push(t);
@@ -48,7 +48,7 @@ function labelFor(dayIso: string) {
 
 export default function HistoryPage() {
   const { account, setAccount } = useAccount();
-  const { txs, remove } = useTransactions();
+  const { txs, remove, hydrated } = useTransactions();
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState(false);
@@ -66,8 +66,7 @@ export default function HistoryPage() {
       .filter((t) => (filter === "all" ? true : t.type === filter))
       .filter((t) => {
         if (!q) return true;
-        const cat =
-          findCategory(t.account, t.category)?.label.toLowerCase() ?? "";
+        const cat = findCategory(t.account, t.category)?.label.toLowerCase() ?? "";
         return (t.note ?? "").toLowerCase().includes(q) || cat.includes(q);
       })
       .sort((a, b) => (a.date > b.date ? -1 : 1));
@@ -86,7 +85,7 @@ export default function HistoryPage() {
   }, [filtered]);
 
   return (
-    <main className="mx-auto max-w-xl px-5 pb-28 pt-6">
+    <main className="mx-auto max-w-xl px-5 pb-32 pt-6">
       <header className="flex items-center justify-between">
         <Link
           href="/"
@@ -98,6 +97,7 @@ export default function HistoryPage() {
         <AccountSwitcher value={account} onChange={setAccount} />
       </header>
 
+      {/* Search */}
       <div className="mt-7 relative">
         <Search
           size={15}
@@ -107,10 +107,11 @@ export default function HistoryPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Rechercher"
-          className="w-full rounded-full border border-white/10 bg-white/[0.03] pl-10 pr-4 py-3 text-sm placeholder:text-white/40 focus:outline-none focus:border-[#4ECCA3]/30"
+          className="w-full rounded-full border border-white/10 bg-white/[0.03] pl-10 pr-4 py-3 text-sm placeholder:text-white/40 focus:outline-none focus:border-[#4ECCA3]/30 text-[#F0EDE8]"
         />
       </div>
 
+      {/* Filter pills */}
       <div className="mt-4 inline-flex rounded-full border border-white/10 bg-white/[0.03] p-0.5 text-xs">
         {(
           [
@@ -142,6 +143,7 @@ export default function HistoryPage() {
         })}
       </div>
 
+      {/* Totals */}
       <div className="mt-5 grid grid-cols-2 gap-3">
         <div className="stat-card stat-card-green p-4">
           <p className="label">Revenus</p>
@@ -163,55 +165,71 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      <section className="mt-7 space-y-2">
-        {groups.length === 0 && (
-          <div className="card p-10 text-center text-white/50 text-sm">
-            Aucune transaction
+      {/* List */}
+      <section className="mt-7">
+        {!hydrated ? (
+          <div className="card p-10 text-center text-white/40 text-sm">
+            Chargement…
+          </div>
+        ) : groups.length === 0 ? (
+          <div className="card p-10 text-center">
+            <div className="mx-auto h-12 w-12 rounded-full bg-white/[0.04] grid place-items-center mb-3 border border-white/10">
+              <Inbox size={20} className="text-white/40" strokeWidth={1.6} />
+            </div>
+            <p className="text-sm font-medium text-[#F0EDE8]">
+              Aucune transaction
+            </p>
+            <p className="text-xs text-white/45 mt-1">
+              {query
+                ? "Aucun résultat pour cette recherche"
+                : "Ajoute ta première transaction depuis l'accueil"}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {groups.map((g, gi) => (
+              <div key={g.date}>
+                {gi > 0 && (
+                  <div
+                    aria-hidden
+                    className="mb-4 h-px"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
+                    }}
+                  />
+                )}
+                <div
+                  className="sticky top-0 z-10 -mx-5 px-5 py-2 mb-2 uppercase"
+                  style={{
+                    fontSize: 11,
+                    letterSpacing: "0.15em",
+                    fontWeight: 600,
+                    color: "rgba(255,255,255,0.65)",
+                    background:
+                      "linear-gradient(180deg, rgba(10,10,15,0.95) 0%, rgba(10,10,15,0.8) 70%, rgba(10,10,15,0) 100%)",
+                    backdropFilter: "blur(8px)",
+                    WebkitBackdropFilter: "blur(8px)",
+                  }}
+                >
+                  {labelFor(g.date)}
+                </div>
+                <ul className="space-y-2">
+                  <AnimatePresence initial={false}>
+                    {g.items.map((t, i) => (
+                      <SwipeRow
+                        key={t.id}
+                        tx={t}
+                        onRemove={handleRemove}
+                        index={i}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </ul>
+              </div>
+            ))}
           </div>
         )}
-        <AnimatePresence initial={false}>
-          {groups.map((g, gi) => (
-            <motion.div key={g.date} layout className="pb-2">
-              {gi > 0 && (
-                <div
-                  aria-hidden
-                  className="my-4 h-px"
-                  style={{
-                    background:
-                      "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
-                  }}
-                />
-              )}
-              <div
-                className="sticky top-0 z-10 -mx-5 px-5 py-2 mb-2 uppercase"
-                style={{
-                  fontSize: 11,
-                  letterSpacing: "0.15em",
-                  fontWeight: 600,
-                  color: "rgba(255,255,255,0.6)",
-                  background:
-                    "linear-gradient(180deg, rgba(10,10,15,0.95) 0%, rgba(10,10,15,0.85) 70%, rgba(10,10,15,0) 100%)",
-                  backdropFilter: "blur(8px)",
-                  WebkitBackdropFilter: "blur(8px)",
-                }}
-              >
-                {labelFor(g.date)}
-              </div>
-              <ul className="space-y-2">
-                <AnimatePresence initial={false}>
-                  {g.items.map((t, i) => (
-                    <SwipeRow
-                      key={t.id}
-                      tx={t}
-                      onRemove={handleRemove}
-                      index={i}
-                    />
-                  ))}
-                </AnimatePresence>
-              </ul>
-            </motion.div>
-          ))}
-        </AnimatePresence>
       </section>
 
       <Toast open={toast} message="Transaction supprimée" tone="red" />
@@ -238,8 +256,12 @@ function SwipeRow({
       layout
       initial={{ opacity: 0, x: 24 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -80, transition: { duration: 0.25 } }}
-      transition={{ duration: 0.4, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+      exit={{ opacity: 0, x: -120, transition: { duration: 0.25 } }}
+      transition={{
+        duration: 0.35,
+        delay: Math.min(index * 0.03, 0.2),
+        ease: [0.22, 1, 0.36, 1],
+      }}
       className="relative"
     >
       <motion.div
@@ -265,7 +287,7 @@ function SwipeRow({
         className="card relative flex items-center gap-3 px-4 py-3.5 cursor-grab active:cursor-grabbing"
       >
         <div
-          className={`h-9 w-9 shrink-0 rounded-full grid place-items-center text-base ${
+          className={`h-10 w-10 shrink-0 rounded-full grid place-items-center text-lg ${
             tx.type === "income"
               ? "bg-[rgba(78,204,163,0.12)] text-[#4ECCA3]"
               : "bg-[rgba(255,107,107,0.12)] text-[#FF6B6B]"
