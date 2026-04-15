@@ -81,26 +81,31 @@ export function QuickAdd({
     onClose();
   };
 
+  const toneText = type === "income" ? "text-positive" : "text-negative";
+
   return (
     <AnimatePresence>
       {open && (
         <>
           <motion.div
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-black/70 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
           />
           <motion.div
-            className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-xl rounded-t-3xl border-t border-white/10 bg-bg-elevated p-5 sm:p-6 sm:bottom-6 sm:rounded-3xl sm:border max-h-[95vh] overflow-y-auto"
+            className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-xl rounded-t-[28px] border-t border-line bg-bg-elevated p-5 sm:p-6 sm:bottom-6 sm:rounded-[28px] sm:border max-h-[95vh] overflow-y-auto shadow-2xl shadow-black/60"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 28, stiffness: 280 }}
+            transition={{ type: "spring", damping: 30, stiffness: 320 }}
           >
+            {/* Drag handle */}
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/10" />
+
             <div className="flex items-center justify-between">
-              <div className="inline-flex glass rounded-full p-1 text-sm">
+              <div className="inline-flex rounded-full border border-line bg-white/[0.03] p-1 text-sm">
                 {(["expense", "income"] as TxType[]).map((t) => {
                   const active = type === t;
                   return (
@@ -110,8 +115,8 @@ export function QuickAdd({
                         setType(t);
                         setCategory("");
                       }}
-                      className={`relative px-3.5 py-1.5 rounded-full transition-colors ${
-                        active ? "text-black" : "text-white/60"
+                      className={`relative px-4 py-1.5 rounded-full transition-colors ${
+                        active ? "text-bg" : "text-white/55"
                       }`}
                     >
                       {active && (
@@ -120,10 +125,10 @@ export function QuickAdd({
                           className={`absolute inset-0 rounded-full ${
                             t === "income" ? "bg-accent-green" : "bg-white"
                           }`}
-                          transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                          transition={{ type: "spring", stiffness: 420, damping: 34 }}
                         />
                       )}
-                      <span className="relative">
+                      <span className="relative font-semibold">
                         {t === "income" ? "Revenu" : "Dépense"}
                       </span>
                     </button>
@@ -132,27 +137,29 @@ export function QuickAdd({
               </div>
               <button
                 onClick={onClose}
-                className="h-9 w-9 rounded-full bg-white/5 grid place-items-center hover:bg-white/10"
+                className="h-10 w-10 rounded-full bg-white/5 border border-line grid place-items-center hover:bg-white/10 press"
                 aria-label="Fermer"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="mt-6 text-center">
-              <p className="text-xs uppercase tracking-widest text-white/40">Montant</p>
-              <p
-                className={`mt-2 text-5xl font-semibold tabular-nums ${
-                  type === "income" ? "text-accent-green" : "text-white"
-                }`}
-              >
+            {/* Amount big */}
+            <div className="mt-7 text-center">
+              <p className="text-[11px] uppercase tracking-[0.24em] text-white/45">
+                Montant
+              </p>
+              <p className={`amount mt-2 text-6xl sm:text-7xl tabular-nums ${toneText}`}>
                 {type === "income" ? "+" : "−"}
                 {amount} €
               </p>
             </div>
 
-            <div className="mt-5">
-              <p className="text-xs uppercase tracking-wider text-white/40 mb-2">Catégorie</p>
+            {/* Categories */}
+            <div className="mt-6">
+              <p className="text-[11px] uppercase tracking-wider text-white/45 mb-2">
+                Catégorie
+              </p>
               <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
                 {cats.map((c) => {
                   const active = category === c.key;
@@ -160,10 +167,10 @@ export function QuickAdd({
                     <button
                       key={c.key}
                       onClick={() => setCategory(c.key)}
-                      className={`shrink-0 rounded-full px-3.5 py-2 text-sm border transition ${
+                      className={`press shrink-0 rounded-full px-4 py-2 text-sm border transition ${
                         active
-                          ? "bg-white text-black border-white"
-                          : "bg-white/5 border-white/10 hover:bg-white/10"
+                          ? "bg-white text-bg border-white"
+                          : "bg-white/[0.04] border-line hover:bg-white/10"
                       }`}
                     >
                       <span className="mr-1.5">{c.emoji}</span>
@@ -174,16 +181,17 @@ export function QuickAdd({
               </div>
             </div>
 
+            {/* Note + Date */}
             <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
               <input
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Description (optionnel)"
-                className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30"
+                className="rounded-2xl bg-white/[0.04] border border-line px-4 py-3 text-sm placeholder:text-white/30 focus:outline-none focus:border-white/25"
               />
-              <label className="relative">
+              <label className="relative press">
                 <span className="sr-only">Date</span>
-                <div className="h-full inline-flex items-center gap-2 rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-sm hover:bg-white/10 transition cursor-pointer">
+                <div className="h-full inline-flex items-center gap-2 rounded-2xl bg-white/[0.04] border border-line px-3 py-3 text-sm cursor-pointer">
                   <Calendar size={16} className="text-white/60" />
                   <span className="tabular-nums">
                     {new Date(date).toLocaleDateString("fr-FR", {
@@ -201,12 +209,13 @@ export function QuickAdd({
               </label>
             </div>
 
+            {/* Keypad */}
             <div className="mt-4 grid grid-cols-3 gap-2">
               {["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "back"].map((k) => (
                 <button
                   key={k}
                   onClick={() => press(k)}
-                  className="rounded-2xl bg-white/[0.04] border border-white/5 py-3.5 text-lg font-medium hover:bg-white/[0.08] active:scale-95 transition"
+                  className="press rounded-2xl bg-white/[0.04] border border-line py-4 text-lg font-medium hover:bg-white/[0.08]"
                 >
                   {k === "back" ? <Delete size={18} className="mx-auto" /> : k}
                 </button>
@@ -216,15 +225,15 @@ export function QuickAdd({
             <button
               onClick={submit}
               disabled={!valid}
-              className={`mt-4 w-full rounded-full py-4 font-medium inline-flex items-center justify-center gap-2 transition ${
+              className={`press mt-5 w-full rounded-full py-4 font-semibold inline-flex items-center justify-center gap-2 transition ${
                 valid
                   ? type === "income"
-                    ? "bg-accent-green text-black hover:brightness-110"
-                    : "bg-white text-black hover:brightness-110"
+                    ? "btn-green"
+                    : "btn-red"
                   : "bg-white/10 text-white/40 cursor-not-allowed"
               }`}
             >
-              <Check size={18} />
+              <Check size={18} strokeWidth={3} />
               Ajouter
             </button>
           </motion.div>

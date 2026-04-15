@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { motion } from "framer-motion";
 import {
   Area,
   AreaChart,
@@ -44,43 +45,69 @@ export function TrendChart({ txs }: { txs: Transaction[] }) {
   }, [txs]);
 
   return (
-    <div className="rounded-3xl glass p-5">
-      <div className="flex items-baseline justify-between mb-1">
-        <p className="text-sm font-medium">Évolution · 14 jours</p>
-        <p className="text-xs text-white/40">Cumul net</p>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="card-lg p-5"
+    >
+      <div className="flex items-baseline justify-between mb-2">
+        <p className="text-sm font-semibold">Évolution · 14 jours</p>
+        <p className="text-[11px] text-white/45 uppercase tracking-wider">
+          Cumul net
+        </p>
       </div>
       <div className="h-44">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 16, right: 4, left: 4, bottom: 0 }}>
             <defs>
-              <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#4ade80" stopOpacity={0.4} />
-                <stop offset="100%" stopColor="#4ade80" stopOpacity={0} />
+              <linearGradient id="trend-fill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#4ECCA3" stopOpacity={0.55} />
+                <stop offset="100%" stopColor="#4ECCA3" stopOpacity={0} />
               </linearGradient>
+              <filter id="trend-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
             </defs>
             <XAxis dataKey="label" hide />
             <YAxis hide domain={["auto", "auto"]} />
             <Tooltip
-              cursor={{ stroke: "#ffffff20" }}
+              cursor={{ stroke: "#4ECCA360", strokeDasharray: "4 4" }}
               contentStyle={{
-                background: "#131316",
-                border: "1px solid #ffffff15",
+                background: "#12121A",
+                border: "1px solid #2A2A3E",
                 borderRadius: 12,
                 fontSize: 12,
+                color: "#f5f5f7",
               }}
-              labelStyle={{ color: "#ffffff80" }}
+              labelStyle={{ color: "#ffffff70" }}
               formatter={(v: number) => [eur(v), "Cumul"]}
             />
             <Area
               type="monotone"
               dataKey="running"
-              stroke="#4ade80"
-              strokeWidth={2}
-              fill="url(#g)"
+              stroke="#4ECCA3"
+              strokeWidth={2.5}
+              fill="url(#trend-fill)"
+              filter="url(#trend-glow)"
+              dot={false}
+              activeDot={{
+                r: 5,
+                stroke: "#4ECCA3",
+                strokeWidth: 2,
+                fill: "#0A0A0F",
+              }}
+              isAnimationActive
+              animationDuration={900}
+              animationEasing="ease-out"
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </motion.div>
   );
 }

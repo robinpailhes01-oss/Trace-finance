@@ -75,7 +75,7 @@ export default function HistoryPage() {
       <header className="flex items-center justify-between">
         <Link
           href="/"
-          className="h-10 w-10 grid place-items-center rounded-full bg-white/5 hover:bg-white/10"
+          className="h-10 w-10 grid place-items-center rounded-full bg-white/[0.04] border border-line hover:bg-white/10 press"
         >
           <ArrowLeft size={18} />
         </Link>
@@ -92,11 +92,11 @@ export default function HistoryPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Rechercher par description ou catégorie"
-          className="w-full rounded-full bg-white/5 border border-white/10 pl-10 pr-4 py-3 text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30"
+          className="w-full rounded-full bg-white/[0.04] border border-line pl-10 pr-4 py-3 text-sm placeholder:text-white/30 focus:outline-none focus:border-white/25"
         />
       </div>
 
-      <div className="mt-3 inline-flex glass rounded-full p-1 text-sm">
+      <div className="mt-3 inline-flex rounded-full border border-line bg-white/[0.03] p-1 text-sm">
         {([
           { key: "all", label: "Tout" },
           { key: "income", label: "Revenus" },
@@ -107,33 +107,37 @@ export default function HistoryPage() {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`relative px-3.5 py-1.5 rounded-full transition-colors ${
-                active ? "text-black" : "text-white/60"
+              className={`relative px-4 py-1.5 rounded-full transition-colors ${
+                active ? "text-bg" : "text-white/55"
               }`}
             >
               {active && (
                 <motion.span
                   layoutId="filter-pill"
-                  className="absolute inset-0 bg-white rounded-full"
-                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  className="absolute inset-0 rounded-full bg-gradient-to-b from-white to-white/85"
+                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
                 />
               )}
-              <span className="relative">{f.label}</span>
+              <span className="relative font-semibold">{f.label}</span>
             </button>
           );
         })}
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl glass p-3">
-          <p className="text-[11px] uppercase tracking-wider text-white/40">Revenus</p>
-          <p className="mt-1 text-lg font-semibold text-accent-green tabular-nums">
+        <div className="card p-3">
+          <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+            Revenus
+          </p>
+          <p className="amount mt-1 text-xl text-positive tabular-nums">
             +{eur(totals.i).replace("€", "")}€
           </p>
         </div>
-        <div className="rounded-2xl glass p-3">
-          <p className="text-[11px] uppercase tracking-wider text-white/40">Dépenses</p>
-          <p className="mt-1 text-lg font-semibold text-accent-red tabular-nums">
+        <div className="card p-3">
+          <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+            Dépenses
+          </p>
+          <p className="amount mt-1 text-xl text-negative tabular-nums">
             −{eur(totals.e).replace("€", "")}€
           </p>
         </div>
@@ -141,14 +145,14 @@ export default function HistoryPage() {
 
       <section className="mt-6 space-y-6">
         {groups.length === 0 && (
-          <div className="rounded-2xl glass p-8 text-center text-white/50 text-sm">
+          <div className="card p-8 text-center text-white/50 text-sm">
             Aucune transaction
           </div>
         )}
         <AnimatePresence initial={false}>
           {groups.map((g) => (
             <motion.div key={g.date} layout>
-              <p className="text-xs uppercase tracking-wider text-white/40 mb-2">
+              <p className="text-[11px] uppercase tracking-wider text-white/45 mb-2">
                 {labelFor(g.date)}
               </p>
               <ul className="space-y-2">
@@ -162,13 +166,13 @@ export default function HistoryPage() {
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: -60 }}
-                        className="group flex items-center gap-3 rounded-2xl glass px-4 py-3"
+                        className="group flex items-center gap-3 card px-4 py-3"
                       >
                         <div
                           className={`h-10 w-10 shrink-0 rounded-full grid place-items-center text-lg ${
                             t.type === "income"
-                              ? "bg-accent-green/15"
-                              : "bg-white/5"
+                              ? "bg-accent-green/15 ring-1 ring-accent-green/25"
+                              : "bg-white/5 ring-1 ring-white/5"
                           }`}
                         >
                           {cat?.emoji ?? "💸"}
@@ -177,13 +181,11 @@ export default function HistoryPage() {
                           <p className="font-medium truncate">
                             {t.note?.length ? t.note : cat?.label ?? "Transaction"}
                           </p>
-                          <p className="text-xs text-white/40 mt-0.5">
-                            {cat?.label}
-                          </p>
+                          <p className="text-xs text-white/40 mt-0.5">{cat?.label}</p>
                         </div>
                         <p
-                          className={`text-sm font-semibold tabular-nums ${
-                            t.type === "income" ? "text-accent-green" : "text-white"
+                          className={`amount text-lg tabular-nums ${
+                            t.type === "income" ? "text-positive" : "text-white"
                           }`}
                         >
                           {t.type === "income" ? "+" : "−"}
@@ -191,7 +193,7 @@ export default function HistoryPage() {
                         </p>
                         <button
                           onClick={() => remove(t.id)}
-                          className="h-8 w-8 grid place-items-center rounded-full bg-white/5 hover:bg-accent-red/20 hover:text-accent-red transition"
+                          className="h-8 w-8 grid place-items-center rounded-full bg-white/5 hover:bg-accent-red/20 hover:text-accent-red press"
                           aria-label="Supprimer"
                         >
                           <Trash2 size={14} />
