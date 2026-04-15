@@ -1,9 +1,15 @@
 "use client";
 
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 import { Trash2 } from "lucide-react";
 import { eur, formatRelative } from "@/lib/format";
 import { findCategory, type Transaction } from "@/lib/types";
+import { haptic } from "@/lib/haptic";
 
 export function TransactionList({
   txs,
@@ -40,37 +46,21 @@ function Row({
 }) {
   const cat = findCategory(tx.account, tx.category);
   const x = useMotionValue(0);
-  const bgOpacity = useTransform(x, [-100, -40, 0], [0.5, 0.2, 0]);
+  const bgOpacity = useTransform(x, [-100, -40, 0], [0.55, 0.25, 0]);
+  const bg = useTransform(bgOpacity, (v) => `rgba(255,107,107,${v})`);
 
   return (
     <motion.li
       layout
       initial={{ opacity: 0, y: 14 }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        backgroundColor: [
-          "rgba(78,204,163,0.2)",
-          "rgba(78,204,163,0)",
-        ],
-        transition: {
-          y: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
-          opacity: { duration: 0.3 },
-          backgroundColor: { duration: 0.6, times: [0, 1] },
-        },
-      }}
-      exit={{ opacity: 0, x: -80, transition: { duration: 0.25 } }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -120, transition: { duration: 0.25 } }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       className="relative"
     >
-      {/* Delete hint behind on swipe */}
       <motion.div
         className="absolute inset-0 rounded-2xl flex items-center justify-end pr-5"
-        style={{
-          background: useTransform(
-            bgOpacity,
-            (v) => `rgba(255,107,107,${v})`,
-          ),
-        }}
+        style={{ background: bg }}
       >
         <Trash2 size={16} className="text-[#FF6B6B]" />
       </motion.div>
@@ -79,10 +69,14 @@ function Row({
         drag="x"
         dragConstraints={{ left: -120, right: 0 }}
         dragElastic={0.18}
-        style={{ x }}
+        style={{ x, touchAction: "pan-y" }}
         onDragEnd={(_, info) => {
-          if (info.offset.x < -80) onRemove(tx.id);
-          else x.set(0);
+          if (info.offset.x < -80) {
+            haptic([10, 30, 20]);
+            onRemove(tx.id);
+          } else {
+            x.set(0);
+          }
         }}
         className="relative card flex items-center gap-3 px-4 py-3.5 cursor-grab active:cursor-grabbing"
       >

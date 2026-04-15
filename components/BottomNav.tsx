@@ -15,7 +15,7 @@ export function BottomNav() {
   const pathname = usePathname();
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-30 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3"
+      className="fixed bottom-0 inset-x-0 z-30 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2"
       style={{
         background: "rgba(10,10,15,0.8)",
         backdropFilter: "blur(30px) saturate(180%)",
@@ -23,7 +23,7 @@ export function BottomNav() {
         borderTop: "1px solid rgba(255,255,255,0.06)",
       }}
     >
-      <div className="mx-auto max-w-xl px-4 flex items-center justify-around gap-1">
+      <div className="mx-auto max-w-xl px-2 flex items-stretch justify-around gap-1">
         {items.map((it) => {
           const Icon = it.icon;
           const active = pathname === it.href;
@@ -31,32 +31,34 @@ export function BottomNav() {
             <Link
               key={it.href}
               href={it.href}
-              className={`relative press px-4 py-2 rounded-full inline-flex items-center gap-2 text-xs transition-colors duration-200 ${
+              className={`relative press flex-1 flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-2xl transition-colors duration-200 ${
                 active ? "text-[#4ECCA3]" : "text-white/55 hover:text-white"
               }`}
             >
               {active && (
                 <motion.span
                   layoutId="bottomnav-pill"
-                  className="absolute inset-0 rounded-full"
+                  className="absolute inset-0 rounded-2xl"
                   style={{
-                    background: "rgba(78,204,163,0.15)",
-                    boxShadow: "inset 0 1px 0 rgba(78,204,163,0.2)",
+                    background: "rgba(78,204,163,0.10)",
+                    border: "1px solid rgba(78,204,163,0.18)",
                   }}
                   transition={{ type: "spring", stiffness: 320, damping: 28 }}
                 />
               )}
               <Icon
-                size={16}
+                size={20}
                 className="relative"
                 strokeWidth={active ? 2.2 : 1.8}
                 style={
                   active
-                    ? { filter: "drop-shadow(0 0 6px rgba(78,204,163,0.6))" }
+                    ? { filter: "drop-shadow(0 0 6px rgba(78,204,163,0.55))" }
                     : undefined
                 }
               />
-              <span className="relative font-medium">{it.label}</span>
+              <span className="relative text-[10px] font-semibold tracking-wide">
+                {it.label}
+              </span>
             </Link>
           );
         })}

@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, TrendingDown, TrendingUp, Minus } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   ResponsiveContainer,
@@ -10,27 +10,11 @@ import {
   PieChart,
   Pie,
   Cell,
-  BarChart,
-  Bar,
-  CartesianGrid,
-  Legend,
-  XAxis,
-  YAxis,
 } from "recharts";
 import { useAccount, useTransactions } from "@/lib/store";
-import { findCategory } from "@/lib/types";
+import { findCategory, type Transaction } from "@/lib/types";
 import { eur } from "@/lib/format";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
-import { Sparkline } from "@/components/Sparkline";
-
-type Period = "7" | "14" | "30" | "90";
-
-const PERIODS: { key: Period; label: string }[] = [
-  { key: "7", label: "7J" },
-  { key: "14", label: "14J" },
-  { key: "30", label: "30J" },
-  { key: "90", label: "3M" },
-];
 
 const DONUT_COLORS = [
   "#4ECCA3",
@@ -43,34 +27,67 @@ const DONUT_COLORS = [
   "#55555F",
 ];
 
+function startOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+function endOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+}
+function inRange(t: Transaction, from: Date, to: Date) {
+  const dt = new Date(t.date);
+  return dt >= from && dt <= to;
+}
+
+function totals(filtered: Transaction[]) {
+  let i = 0;
+  let e = 0;
+  filtered.forEach((t) => {
+    if (t.type === "income") i += t.amount;
+    else e += t.amount;
+  });
+  return { income: i, expense: e, balance: i - e };
+}
+
 export default function StatsPage() {
   const { account, setAccount } = useAccount();
   const { txs } = useTransactions();
-  const [period, setPeriod] = useState<Period>("30");
 
-  const filtered = useMemo(() => {
-    const days = parseInt(period, 10);
-    const since = new Date();
-    since.setHours(0, 0, 0, 0);
-    since.setDate(since.getDate() - (days - 1));
-    return txs.filter(
-      (t) => t.account === account && new Date(t.date) >= since,
-    );
-  }, [txs, account, period]);
+  const accountTxs = useMemo(
+    () => txs.filter((t) => t.account === account),
+    [txs, account],
+  );
 
-  const { income, expense } = useMemo(() => {
-    let i = 0;
-    let e = 0;
-    filtered.forEach((t) => {
-      if (t.type === "income") i += t.amount;
-      else e += t.amount;
-    });
-    return { income: i, expense: e };
-  }, [filtered]);
+  const now = useMemo(() => new Date(), []);
+  const thisStart = useMemo(() => startOfMonth(now), [now]);
+  const thisEnd = useMemo(() => endOfMonth(now), [now]);
+  const lastStart = useMemo(
+    () => startOfMonth(new Date(now.getFullYear(), now.getMonth() - 1, 1)),
+    [now],
+  );
+  const lastEnd = useMemo(() => endOfMonth(lastStart), [lastStart]);
 
+  const thisMonth = useMemo(
+    () => accountTxs.filter((t) => inRange(t, thisStart, thisEnd)),
+    [accountTxs, thisStart, thisEnd],
+  );
+  const lastMonth = useMemo(
+    () => accountTxs.filter((t) => inRange(t, lastStart, lastEnd)),
+    [accountTxs, lastStart, lastEnd],
+  );
+
+  const cur = useMemo(() => totals(thisMonth), [thisMonth]);
+  const prev = useMemo(() => totals(lastMonth), [lastMonth]);
+
+  // Savings rate = (income - expense) / income * 100
+  const savingsRate = cur.income > 0 ? ((cur.income - cur.expense) / cur.income) * 100 : 0;
+  const savingsRatePrev =
+    prev.income > 0 ? ((prev.income - prev.expense) / prev.income) * 100 : 0;
+  const ratePoints = savingsRate - savingsRatePrev;
+
+  // Donut: category breakdown of expenses this month
   const donut = useMemo(() => {
     const map = new Map<string, number>();
-    filtered
+    thisMonth
       .filter((t) => t.type === "expense")
       .forEach((t) => map.set(t.category, (map.get(t.category) ?? 0) + t.amount));
     return Array.from(map.entries())
@@ -81,41 +98,27 @@ export default function StatsPage() {
         emoji: findCategory(account, key)?.emoji ?? "💸",
       }))
       .sort((a, b) => b.value - a.value);
-  }, [filtered, account]);
+  }, [thisMonth, account]);
 
-  const weeklyCompare = useMemo(() => {
-    const days = parseInt(period, 10);
-    const buckets = Math.min(6, Math.max(2, Math.ceil(days / 7)));
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    const out: { label: string; Revenus: number; Dépenses: number }[] = [];
-    const bucketSize = Math.ceil(days / buckets);
-    for (let i = buckets - 1; i >= 0; i--) {
-      const end = new Date(now);
-      end.setDate(end.getDate() - i * bucketSize);
-      const start = new Date(end);
-      start.setDate(end.getDate() - (bucketSize - 1));
-      const label = `${start.toLocaleDateString("fr-FR", {
-        day: "numeric",
-      })}–${end.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}`;
-      const entry = { label, Revenus: 0, Dépenses: 0 };
-      filtered.forEach((t) => {
-        const d = new Date(t.date);
-        d.setHours(0, 0, 0, 0);
-        if (d >= start && d <= end) {
-          if (t.type === "income") entry.Revenus += t.amount;
-          else entry.Dépenses += t.amount;
-        }
-      });
-      out.push(entry);
-    }
-    return out;
-  }, [filtered, period]);
+  // Top expenses: horizontal bars
+  const topBars = useMemo(() => {
+    const arr = donut.slice(0, 6);
+    const max = Math.max(...arr.map((a) => a.value), 1);
+    return arr.map((a) => ({ ...a, pct: a.value / max }));
+  }, [donut]);
 
-  const max = Math.max(...weeklyCompare.flatMap((b) => [b.Revenus, b.Dépenses]), 1);
+  // Month-over-month income/expense comparison
+  const incomeDelta = prev.income > 0 ? ((cur.income - prev.income) / prev.income) * 100 : null;
+  const expenseDelta = prev.expense > 0 ? ((cur.expense - prev.expense) / prev.expense) * 100 : null;
+
+  const monthLabel = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  const prevLabel = lastStart.toLocaleDateString("fr-FR", {
+    month: "long",
+    year: "numeric",
+  });
 
   return (
-    <main className="mx-auto max-w-xl px-5 pb-28 pt-6">
+    <main className="mx-auto max-w-xl px-5 pb-32 pt-6">
       <header className="flex items-center justify-between">
         <Link
           href="/"
@@ -127,91 +130,112 @@ export default function StatsPage() {
         <AccountSwitcher value={account} onChange={setAccount} />
       </header>
 
-      {/* Period pills */}
-      <div className="mt-7 inline-flex rounded-full border border-white/10 bg-white/[0.03] p-0.5 text-xs">
-        {PERIODS.map((p) => {
-          const active = period === p.key;
-          return (
-            <button
-              key={p.key}
-              onClick={() => setPeriod(p.key)}
-              className={`relative px-4 py-1.5 rounded-full transition-colors duration-200 ${
-                active ? "text-[#4ECCA3]" : "text-white/55"
-              }`}
-            >
-              {active && (
-                <motion.span
-                  layoutId="period-pill"
-                  className="absolute inset-0 rounded-full"
-                  style={{ background: "rgba(78,204,163,0.15)" }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                />
-              )}
-              <span className="relative font-semibold">{p.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Savings rate card */}
+      <motion.section
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="mt-6 card-lg p-6"
+      >
+        <div className="flex items-baseline justify-between">
+          <p className="label">Taux d&apos;épargne · {monthLabel}</p>
+          <DeltaBadge value={ratePoints} suffix="pt" />
+        </div>
+        <p
+          className="amount mt-3 text-5xl tabular-nums"
+          style={{
+            color: savingsRate >= 0 ? "#4ECCA3" : "#FF6B6B",
+            textShadow:
+              savingsRate >= 0
+                ? "0 0 24px rgba(78,204,163,0.3)"
+                : "0 0 24px rgba(255,107,107,0.25)",
+          }}
+        >
+          {savingsRate.toFixed(1)}%
+        </p>
+        <p className="text-[12px] text-white/55 mt-1">
+          {cur.income > 0
+            ? `Tu mets de côté ${eur(Math.max(0, cur.income - cur.expense))} ce mois-ci`
+            : "Pas encore de revenus enregistrés ce mois-ci"}
+        </p>
 
-      {/* Trend */}
-      <div className="mt-5 card-lg p-6">
-        <div className="flex items-baseline justify-between mb-3">
-          <p className="label">Évolution</p>
-          <p
-            className={`amount text-base tabular-nums ${
-              income - expense >= 0 ? "text-positive" : "text-negative"
-            }`}
-          >
-            {income - expense >= 0 ? "+" : ""}
-            {eur(income - expense)}
+        {/* Visual bar */}
+        <div className="mt-5 h-2 w-full rounded-full overflow-hidden bg-white/[0.05]">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{
+              width: `${Math.max(0, Math.min(100, savingsRate))}%`,
+            }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="h-full rounded-full"
+            style={{
+              background:
+                "linear-gradient(90deg, rgba(78,204,163,0.9), rgba(78,204,163,0.5))",
+              boxShadow: "0 0 14px rgba(78,204,163,0.45)",
+            }}
+          />
+        </div>
+      </motion.section>
+
+      {/* Income vs Expense — month over month */}
+      <motion.section
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+        className="mt-5 card-lg p-6"
+      >
+        <p className="label mb-4">vs {prevLabel}</p>
+        <div className="grid grid-cols-2 gap-3">
+          <CompareCard
+            label="Revenus"
+            value={cur.income}
+            prev={prev.income}
+            delta={incomeDelta}
+            tone="green"
+          />
+          <CompareCard
+            label="Dépenses"
+            value={cur.expense}
+            prev={prev.expense}
+            delta={expenseDelta}
+            tone="red"
+            invertDelta
+          />
+        </div>
+      </motion.section>
+
+      {/* Top dépenses — horizontal bars */}
+      <motion.section
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+        className="mt-5 card-lg p-6"
+      >
+        <p className="label mb-4">Top dépenses · {monthLabel}</p>
+        {topBars.length === 0 ? (
+          <p className="text-sm text-white/40 py-6 text-center">
+            Aucune dépense ce mois-ci
           </p>
-        </div>
-        <Sparkline key={period} txs={filtered} days={parseInt(period, 10)} height={150} />
-      </div>
-
-      {/* Income vs Expense — animated bars */}
-      <div className="mt-5 card-lg p-6">
-        <p className="label mb-4">Revenus vs Dépenses</p>
-        <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="stat-card stat-card-green p-4">
-            <p className="label">Revenus</p>
-            <p
-              className="amount mt-2 text-xl num-green tabular-nums"
-              style={{ textShadow: "0 0 20px rgba(78,204,163,0.3)" }}
-            >
-              +{eur(income).replace("€", "")}€
-            </p>
-          </div>
-          <div className="stat-card stat-card-red p-4">
-            <p className="label">Dépenses</p>
-            <p
-              className="amount mt-2 text-xl num-red tabular-nums"
-              style={{ textShadow: "0 0 20px rgba(255,107,107,0.25)" }}
-            >
-              −{eur(expense).replace("€", "")}€
-            </p>
-          </div>
-        </div>
-
-        <ul className="space-y-4">
-          {weeklyCompare.map((b, idx) => (
-            <li key={b.label}>
-              <div className="flex items-center justify-between text-[11px] text-white/55 mb-1.5">
-                <span>{b.label}</span>
-                <span className="tabular-nums">
-                  <span className="text-[#4ECCA3]">+{eur(b.Revenus).replace("€", "")}€</span>
-                  <span className="mx-2 text-white/30">·</span>
-                  <span className="text-[#FF6B6B]">−{eur(b.Dépenses).replace("€", "")}€</span>
-                </span>
-              </div>
-              <div className="space-y-1">
-                <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
+        ) : (
+          <ul className="space-y-4">
+            {topBars.map((b, i) => (
+              <li key={b.key}>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[#F0EDE8]">
+                    <span className="mr-2">{b.emoji}</span>
+                    {b.label}
+                  </span>
+                  <span className="amount text-base tabular-nums">
+                    {eur(b.value)}
+                  </span>
+                </div>
+                <div className="mt-2 h-1.5 w-full rounded-full bg-white/[0.05] overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${(b.Revenus / max) * 100}%` }}
+                    animate={{ width: `${Math.max(6, b.pct * 100)}%` }}
                     transition={{
                       duration: 0.9,
-                      delay: 0.06 * idx,
+                      delay: 0.06 * i,
                       ease: [0.22, 1, 0.36, 1],
                     }}
                     className="h-full rounded-full"
@@ -222,35 +246,23 @@ export default function StatsPage() {
                     }}
                   />
                 </div>
-                <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(b.Dépenses / max) * 100}%` }}
-                    transition={{
-                      duration: 0.9,
-                      delay: 0.06 * idx + 0.05,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    className="h-full rounded-full"
-                    style={{
-                      background:
-                        "linear-gradient(90deg, rgba(255,107,107,0.9), rgba(255,107,107,0.4))",
-                      boxShadow: "0 0 12px rgba(255,107,107,0.3)",
-                    }}
-                  />
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </motion.section>
 
       {/* Donut */}
-      <div className="mt-5 card-lg p-6">
-        <p className="label mb-4">Répartition des dépenses</p>
+      <motion.section
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+        className="mt-5 card-lg p-6"
+      >
+        <p className="label mb-4">Répartition par catégorie</p>
         {donut.length === 0 ? (
           <p className="text-sm text-white/40 py-6 text-center">
-            Aucune dépense sur la période
+            Aucune dépense sur ce mois
           </p>
         ) : (
           <div className="flex items-center gap-4">
@@ -266,8 +278,16 @@ export default function StatsPage() {
                         cy="50%"
                         r="65%"
                       >
-                        <stop offset="60%" stopColor={DONUT_COLORS[i % DONUT_COLORS.length]} stopOpacity={1} />
-                        <stop offset="100%" stopColor={DONUT_COLORS[i % DONUT_COLORS.length]} stopOpacity={0.6} />
+                        <stop
+                          offset="60%"
+                          stopColor={DONUT_COLORS[i % DONUT_COLORS.length]}
+                          stopOpacity={1}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor={DONUT_COLORS[i % DONUT_COLORS.length]}
+                          stopOpacity={0.6}
+                        />
                       </radialGradient>
                     ))}
                   </defs>
@@ -305,7 +325,9 @@ export default function StatsPage() {
               <div className="absolute inset-0 grid place-items-center pointer-events-none">
                 <div className="text-center">
                   <p className="label">Total</p>
-                  <p className="amount text-base tabular-nums mt-1">{eur(expense)}</p>
+                  <p className="amount text-base tabular-nums mt-1">
+                    {eur(cur.expense)}
+                  </p>
                 </div>
               </div>
             </div>
@@ -327,7 +349,90 @@ export default function StatsPage() {
             </ul>
           </div>
         )}
-      </div>
+      </motion.section>
     </main>
+  );
+}
+
+function CompareCard({
+  label,
+  value,
+  prev,
+  delta,
+  tone,
+  invertDelta = false,
+}: {
+  label: string;
+  value: number;
+  prev: number;
+  delta: number | null;
+  tone: "green" | "red";
+  invertDelta?: boolean;
+}) {
+  const accent = tone === "green" ? "#4ECCA3" : "#FF6B6B";
+  return (
+    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+      <p className="label">{label}</p>
+      <p
+        className="amount mt-2 text-xl tabular-nums"
+        style={{
+          color: accent,
+          textShadow:
+            tone === "green"
+              ? "0 0 18px rgba(78,204,163,0.3)"
+              : "0 0 18px rgba(255,107,107,0.25)",
+        }}
+      >
+        {tone === "green" ? "+" : "−"}
+        {eur(value).replace("€", "")}€
+      </p>
+      <div className="mt-2">
+        <DeltaBadge value={delta} suffix="%" invert={invertDelta} />
+      </div>
+      <p className="text-[10px] text-white/40 mt-1.5 tabular-nums">
+        Mois préc. · {eur(prev)}
+      </p>
+    </div>
+  );
+}
+
+function DeltaBadge({
+  value,
+  suffix,
+  invert = false,
+}: {
+  value: number | null;
+  suffix: "%" | "pt";
+  invert?: boolean;
+}) {
+  if (value == null) {
+    return (
+      <span className="text-[11px] text-white/40 inline-flex items-center gap-1">
+        <Minus size={12} /> n/a
+      </span>
+    );
+  }
+  // Without invert: positive value = green, negative = red
+  // With invert (e.g. expenses): positive growth = red
+  const positive = invert ? value < 0 : value > 0;
+  const neutral = value === 0;
+  const color = neutral ? "rgba(255,255,255,0.5)" : positive ? "#4ECCA3" : "#FF6B6B";
+  const bg = neutral
+    ? "rgba(255,255,255,0.05)"
+    : positive
+    ? "rgba(78,204,163,0.12)"
+    : "rgba(255,107,107,0.12)";
+  const Icon = neutral ? Minus : value > 0 ? TrendingUp : TrendingDown;
+  const sign = value > 0 ? "+" : "";
+  return (
+    <span
+      className="text-[11px] font-semibold inline-flex items-center gap-1 px-2 py-0.5 rounded-full"
+      style={{ background: bg, color }}
+    >
+      <Icon size={11} strokeWidth={2.4} />
+      {sign}
+      {value.toFixed(1)}
+      {suffix}
+    </span>
   );
 }

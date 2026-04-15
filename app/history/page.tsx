@@ -13,6 +13,8 @@ import { useAccount, useTransactions } from "@/lib/store";
 import { findCategory, type Transaction, type TxType } from "@/lib/types";
 import { eur } from "@/lib/format";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
+import { Toast } from "@/components/Toast";
+import { haptic } from "@/lib/haptic";
 
 type Filter = "all" | TxType;
 
@@ -49,6 +51,13 @@ export default function HistoryPage() {
   const { txs, remove } = useTransactions();
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  const [toast, setToast] = useState(false);
+
+  const handleRemove = (id: string) => {
+    remove(id);
+    setToast(true);
+    setTimeout(() => setToast(false), 1500);
+  };
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -154,30 +163,49 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      <section className="mt-7 space-y-7">
+      <section className="mt-7 space-y-2">
         {groups.length === 0 && (
           <div className="card p-10 text-center text-white/50 text-sm">
             Aucune transaction
           </div>
         )}
         <AnimatePresence initial={false}>
-          {groups.map((g) => (
-            <motion.div key={g.date} layout>
-              <p
-                className="mb-3 uppercase"
+          {groups.map((g, gi) => (
+            <motion.div key={g.date} layout className="pb-2">
+              {gi > 0 && (
+                <div
+                  aria-hidden
+                  className="my-4 h-px"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
+                  }}
+                />
+              )}
+              <div
+                className="sticky top-0 z-10 -mx-5 px-5 py-2 mb-2 uppercase"
                 style={{
                   fontSize: 11,
                   letterSpacing: "0.15em",
-                  opacity: 0.3,
-                  fontWeight: 500,
+                  fontWeight: 600,
+                  color: "rgba(255,255,255,0.6)",
+                  background:
+                    "linear-gradient(180deg, rgba(10,10,15,0.95) 0%, rgba(10,10,15,0.85) 70%, rgba(10,10,15,0) 100%)",
+                  backdropFilter: "blur(8px)",
+                  WebkitBackdropFilter: "blur(8px)",
                 }}
               >
                 {labelFor(g.date)}
-              </p>
+              </div>
               <ul className="space-y-2">
                 <AnimatePresence initial={false}>
                   {g.items.map((t, i) => (
-                    <SwipeRow key={t.id} tx={t} onRemove={remove} index={i} />
+                    <SwipeRow
+                      key={t.id}
+                      tx={t}
+                      onRemove={handleRemove}
+                      index={i}
+                    />
                   ))}
                 </AnimatePresence>
               </ul>
@@ -185,6 +213,8 @@ export default function HistoryPage() {
           ))}
         </AnimatePresence>
       </section>
+
+      <Toast open={toast} message="Transaction supprimée" tone="red" />
     </main>
   );
 }
@@ -223,10 +253,14 @@ function SwipeRow({
         drag="x"
         dragConstraints={{ left: -120, right: 0 }}
         dragElastic={0.18}
-        style={{ x }}
+        style={{ x, touchAction: "pan-y" }}
         onDragEnd={(_, info) => {
-          if (info.offset.x < -80) onRemove(tx.id);
-          else x.set(0);
+          if (info.offset.x < -80) {
+            haptic([10, 30, 20]);
+            onRemove(tx.id);
+          } else {
+            x.set(0);
+          }
         }}
         className="card relative flex items-center gap-3 px-4 py-3.5 cursor-grab active:cursor-grabbing"
       >

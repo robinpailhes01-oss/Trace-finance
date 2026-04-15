@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Plus } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Header } from "@/components/Header";
 import { BalanceCard } from "@/components/BalanceCard";
 import { QuickAdd } from "@/components/QuickAdd";
@@ -112,16 +112,6 @@ export default function HomePage() {
           <TransactionList txs={filtered.slice(0, 6)} onRemove={remove} />
         </motion.section>
       </motion.div>
-
-      {/* Pulsing teal FAB */}
-      <button
-        onClick={() => openAdd("expense")}
-        className="fab fixed right-5 z-40"
-        style={{ bottom: "calc(env(safe-area-inset-bottom) + 90px)" }}
-        aria-label="Ajouter une transaction"
-      >
-        <Plus size={24} strokeWidth={2.4} />
-      </button>
 
       <QuickAdd
         open={open}
