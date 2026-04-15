@@ -85,10 +85,33 @@ export function useTransactions() {
     });
   }, []);
 
+  const bulkAdd = useCallback(
+    (list: Omit<Transaction, "id">[]) => {
+      setTxs((prev) => {
+        const toAdd: Transaction[] = list.map((t) => ({
+          ...t,
+          id: crypto.randomUUID(),
+        }));
+        const next = [...toAdd, ...prev].sort((a, b) =>
+          a.date < b.date ? 1 : -1,
+        );
+        write(next);
+        return next;
+      });
+    },
+    [],
+  );
+
+  const replaceAll = useCallback((list: Transaction[]) => {
+    const sorted = [...list].sort((a, b) => (a.date < b.date ? 1 : -1));
+    setTxs(sorted);
+    write(sorted);
+  }, []);
+
   const clear = useCallback(() => {
     setTxs([]);
     write([]);
   }, []);
 
-  return { txs, add, remove, clear, hydrated };
+  return { txs, add, remove, bulkAdd, replaceAll, clear, hydrated };
 }

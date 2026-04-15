@@ -1,6 +1,7 @@
 "use client";
 
-import { Bell, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { Sparkles, Settings } from "lucide-react";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
 import type { AccountType } from "@/lib/types";
 
@@ -34,13 +35,13 @@ export function Header({
 
       <div className="flex items-center gap-2">
         <AccountSwitcher value={account} onChange={onAccountChange} />
-        <button
-          className="relative h-10 w-10 rounded-full grid place-items-center border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] press"
-          aria-label="Notifications"
+        <Link
+          href="/settings"
+          aria-label="Réglages"
+          className="relative h-10 w-10 rounded-full grid place-items-center border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] press text-white/75"
         >
-          <Bell size={16} className="icon-muted" strokeWidth={1.8} />
-          <span className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-[#4ECCA3] shadow-[0_0_6px_rgba(78,204,163,0.8)]" />
-        </button>
+          <Settings size={16} strokeWidth={1.8} className="icon-muted" />
+        </Link>
       </div>
     </header>
   );
