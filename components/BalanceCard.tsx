@@ -41,16 +41,20 @@ export function BalanceCard({
         <div className="mt-8 flex items-center gap-3 w-full max-w-sm">
           <button
             onClick={onAddIncome}
-            className="btn-green flex-1 inline-flex items-center justify-center gap-2 py-3.5 text-sm font-semibold press"
+            className="btn-pill btn-pill-green flex-1 inline-flex items-center justify-center gap-2.5 py-3 text-sm"
           >
-            <ArrowDownLeft size={16} strokeWidth={2.5} />
+            <span className="icon-circle-green h-7 w-7 grid place-items-center rounded-full">
+              <ArrowDownLeft size={14} strokeWidth={2.4} />
+            </span>
             Recevoir
           </button>
           <button
             onClick={onAddExpense}
-            className="btn-red flex-1 inline-flex items-center justify-center gap-2 py-3.5 text-sm font-semibold press"
+            className="btn-pill btn-pill-red flex-1 inline-flex items-center justify-center gap-2.5 py-3 text-sm"
           >
-            <ArrowUpRight size={16} strokeWidth={2.5} />
+            <span className="icon-circle-red h-7 w-7 grid place-items-center rounded-full">
+              <ArrowUpRight size={14} strokeWidth={2.4} />
+            </span>
             Dépenser
           </button>
         </div>

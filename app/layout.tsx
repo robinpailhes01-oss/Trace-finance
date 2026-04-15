@@ -20,7 +20,7 @@ export const metadata: Metadata = {
       { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
       { url: "/icon.svg", type: "image/svg+xml" },
     ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "512x512", type: "image/png" }],
   },
   appleWebApp: {
     capable: true,
@@ -43,6 +43,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className={`${inter.variable} ${serif.variable}`}>
+      <head>
+        {/* Explicit Apple touch icon for older iOS Safari */}
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
       <body className="app-bg min-h-screen font-sans antialiased">
         {children}
         <BottomNav />

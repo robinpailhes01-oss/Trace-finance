@@ -18,5 +18,5 @@ async function gen(size, outName) {
 (async () => {
   await gen(512, "icon-512.png");
   await gen(192, "icon-192.png");
-  await gen(180, "apple-touch-icon.png");
+  await gen(512, "apple-touch-icon.png");
 })();
