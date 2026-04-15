@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Plus } from "lucide-react";
@@ -10,6 +10,7 @@ import { QuickAdd } from "@/components/QuickAdd";
 import { TransactionList } from "@/components/TransactionList";
 import { TrendChart } from "@/components/TrendChart";
 import { CategoryBreakdown } from "@/components/CategoryBreakdown";
+import { Toast } from "@/components/Toast";
 import { useAccount, useTransactions } from "@/lib/store";
 import type { TxType } from "@/lib/types";
 
@@ -29,6 +30,22 @@ export default function HomePage() {
 
   const [open, setOpen] = useState(false);
   const [presetType, setPresetType] = useState<TxType>("expense");
+
+  const [toast, setToast] = useState<{
+    open: boolean;
+    message: string;
+    tone: "green" | "red";
+  }>({ open: false, message: "", tone: "green" });
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = (message: string, tone: "green" | "red") => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast({ open: true, message, tone });
+    toastTimer.current = setTimeout(
+      () => setToast((t) => ({ ...t, open: false })),
+      1800,
+    );
+  };
 
   const filtered = useMemo(
     () => txs.filter((t) => t.account === account),
@@ -111,8 +128,18 @@ export default function HomePage() {
         onClose={() => setOpen(false)}
         account={account}
         presetType={presetType}
-        onSubmit={(data) => add({ ...data, account })}
+        onSubmit={(data) => {
+          add({ ...data, account });
+          showToast(
+            data.type === "income"
+              ? "Revenu ajouté ✓"
+              : "Dépense ajoutée ✓",
+            data.type === "income" ? "green" : "red",
+          );
+        }}
       />
+
+      <Toast open={toast.open} message={toast.message} tone={toast.tone} />
     </main>
   );
 }
