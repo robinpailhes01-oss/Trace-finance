@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export function useCountUp(target: number, duration = 800) {
+// easeOutExpo — fast start, smooth settle
+function easeOutExpo(t: number) {
+  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+}
+
+export function useCountUp(target: number, duration = 1200) {
   const [value, setValue] = useState(target);
   const fromRef = useRef(target);
   const startRef = useRef<number | null>(null);
@@ -17,8 +22,7 @@ export function useCountUp(target: number, duration = 800) {
       if (startRef.current === null) startRef.current = t;
       const elapsed = t - startRef.current;
       const p = Math.min(1, elapsed / duration);
-      // easeOutCubic
-      const eased = 1 - Math.pow(1 - p, 3);
+      const eased = easeOutExpo(p);
       const next = fromRef.current + (target - fromRef.current) * eased;
       setValue(next);
       if (p < 1) rafRef.current = requestAnimationFrame(step);

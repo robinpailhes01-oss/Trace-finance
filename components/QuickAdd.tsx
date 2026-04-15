@@ -96,16 +96,17 @@ export function QuickAdd({
             onClick={onClose}
           />
           <motion.div
-            className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-xl rounded-t-[28px] hairline-strong bg-bg-elevated p-6 sm:p-7 sm:bottom-6 sm:rounded-[28px] max-h-[95vh] overflow-y-auto"
+            className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-xl rounded-t-[28px] glass p-6 sm:p-7 sm:bottom-6 sm:rounded-[28px] max-h-[95vh] overflow-y-auto"
+            style={{ boxShadow: "0 -8px 48px rgba(0,0,0,0.6)" }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
           >
-            <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-line-strong" />
+            <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-white/15" />
 
             <div className="flex items-center justify-between">
-              <div className="inline-flex rounded-full hairline-strong p-0.5 text-xs">
+              <div className="inline-flex rounded-full border border-white/10 p-0.5 text-xs">
                 {(["expense", "income"] as TxType[]).map((t) => {
                   const active = type === t;
                   return (

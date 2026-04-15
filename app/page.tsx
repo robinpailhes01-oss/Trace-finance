@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { ArrowRight, Plus } from "lucide-react";
 import { Header } from "@/components/Header";
 import { BalanceCard } from "@/components/BalanceCard";
@@ -11,6 +12,11 @@ import { TrendChart } from "@/components/TrendChart";
 import { CategoryBreakdown } from "@/components/CategoryBreakdown";
 import { useAccount, useTransactions } from "@/lib/store";
 import type { TxType } from "@/lib/types";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+};
 
 export default function HomePage() {
   const { account, setAccount } = useAccount();
@@ -51,34 +57,46 @@ export default function HomePage() {
         onAddExpense={() => openAdd("expense")}
       />
 
-      <div className="mt-6">
-        <TrendChart txs={filtered} />
-      </div>
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: {},
+          show: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+        }}
+        className="space-y-6"
+      >
+        <motion.div variants={fadeUp}>
+          <TrendChart txs={filtered} />
+        </motion.div>
 
-      <div className="mt-6">
-        <CategoryBreakdown txs={filtered} />
-      </div>
+        <motion.div variants={fadeUp}>
+          <CategoryBreakdown txs={filtered} />
+        </motion.div>
 
-      <section className="mt-10">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs uppercase tracking-[0.22em] text-muted">
-            Transactions récentes
-          </h3>
-          <Link
-            href="/history"
-            className="text-xs text-muted inline-flex items-center gap-1 hover:text-cream press"
-          >
-            Tout voir <ArrowRight size={11} />
-          </Link>
-        </div>
-        <TransactionList txs={filtered.slice(0, 6)} onRemove={remove} />
-      </section>
+        <motion.section variants={fadeUp} className="mt-10">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="label">Transactions récentes</h3>
+            <Link
+              href="/history"
+              className="text-xs text-white/55 inline-flex items-center gap-1 hover:text-white press"
+            >
+              Tout voir <ArrowRight size={11} />
+            </Link>
+          </div>
+          <TransactionList txs={filtered.slice(0, 6)} onRemove={remove} />
+        </motion.section>
+      </motion.div>
 
-      {/* FAB — sober pill */}
+      {/* FAB */}
       <button
         onClick={() => openAdd("expense")}
-        className="press fixed bottom-24 right-5 z-30 h-13 w-13 rounded-full bg-cream text-bg grid place-items-center shadow-[0_8px_30px_rgba(0,0,0,0.6)]"
-        style={{ height: 52, width: 52 }}
+        className="press fixed bottom-24 right-5 z-30 h-13 w-13 rounded-full bg-[#F0EDE8] text-[#0A0A0F] grid place-items-center"
+        style={{
+          height: 52,
+          width: 52,
+          boxShadow: "0 8px 30px rgba(0,0,0,0.6), 0 0 24px rgba(78,204,163,0.15)",
+        }}
         aria-label="Ajouter une transaction"
       >
         <Plus size={22} strokeWidth={2.2} />

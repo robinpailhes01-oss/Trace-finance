@@ -29,79 +29,132 @@ body {
   border-radius: 9999px;
 }
 
-/* Ultra subtle ambient — nothing loud */
+/* ============================================================
+   Ambient teal halo — pulses slowly
+   ============================================================ */
 .app-bg {
+  position: relative;
   background: #0a0a0f;
+  isolation: isolate;
+}
+.app-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 80% 40% at 50% 0%,
+    rgba(45, 180, 160, 0.18) 0%,
+    transparent 70%
+  );
+  animation: halo-pulse 4s ease-in-out infinite;
+  z-index: -1;
 }
 
+@keyframes halo-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+/* ============================================================
+   Cards
+   ============================================================ */
 .card {
-  background: #12121a;
-  border: 1px solid #1e1e28;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
 .card-lg {
-  background: #12121a;
-  border: 1px solid #1e1e28;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 24px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .hairline {
-  border: 1px solid #1e1e28;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .hairline-strong {
-  border: 1px solid #2a2a3a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Pill button — thin border, transparent */
-.pill {
-  background: transparent;
-  border: 1px solid #2a2a3a;
+/* ============================================================
+   Dark pills (Recevoir / Dépenser etc.)
+   ============================================================ */
+.pill-dark {
+  background: #1a1a1a;
+  border: 1px solid #333;
   border-radius: 9999px;
   color: #f0ede8;
   transition:
     background 200ms cubic-bezier(0.22, 1, 0.36, 1),
     border-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.pill:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: #3a3a4a;
+.pill-dark:hover {
+  background: #1f1f1f;
+  border-color: #444;
 }
-.pill:active {
-  transform: scale(0.98);
-}
-
-/* Accent dots for pill icons — kept small */
-.dot-green {
-  background: rgba(78, 204, 163, 0.12);
-  color: #4ecca3;
-}
-.dot-red {
-  background: rgba(255, 107, 107, 0.12);
-  color: #ff6b6b;
+.pill-dark:active {
+  transform: scale(0.97);
+  box-shadow: 0 0 24px rgba(78, 204, 163, 0.08);
 }
 
-/* Minimal press feedback */
+/* Generic press feedback */
 .press {
   transition:
     transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
     background 200ms cubic-bezier(0.22, 1, 0.36, 1),
     border-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .press:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
-/* Amount typography — cream, serif, airy */
+/* ============================================================
+   Amount typography — light serif, cream
+   ============================================================ */
 .amount {
   font-family: var(--font-instrument-serif), Georgia, serif;
   font-feature-settings: "tnum" 1, "lnum" 1;
-  letter-spacing: -0.015em;
-  font-weight: 400;
+  letter-spacing: -0.02em;
+  font-weight: 300;
   color: #f0ede8;
+}
+
+.amount-hero {
+  font-size: clamp(48px, 12vw, 72px);
+  line-height: 1;
+}
+
+.label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .text-positive {
@@ -113,5 +166,65 @@ body {
 
 .divider {
   height: 1px;
-  background: #1e1e28;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================================
+   Sparkline dot pulse
+   ============================================================ */
+@keyframes dot-glow {
+  0%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(78, 204, 163, 0.8));
+  }
+  50% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 12px rgba(78, 204, 163, 1));
+  }
+}
+.dot-pulse {
+  animation: dot-glow 1.8s ease-in-out infinite;
+}
+
+/* Sparkline draw-on animation */
+@keyframes spark-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ============================================================
+   Flash for stat cards on value change
+   ============================================================ */
+@keyframes flash-green {
+  0% {
+    background-color: rgba(78, 204, 163, 0.22);
+    border-color: rgba(78, 204, 163, 0.4);
+  }
+  100% {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+}
+@keyframes flash-red {
+  0% {
+    background-color: rgba(255, 107, 107, 0.22);
+    border-color: rgba(255, 107, 107, 0.4);
+  }
+  100% {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+}
+.flash-green {
+  animation: flash-green 300ms ease-out;
+}
+.flash-red {
+  animation: flash-red 300ms ease-out;
+}
+
+/* Small utility for icons */
+.icon-muted {
+  opacity: 0.7;
 }

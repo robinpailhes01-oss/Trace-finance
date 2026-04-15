@@ -32,26 +32,24 @@ export function Header({
   return (
     <header className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="h-10 w-10 rounded-full bg-[#12121A] hairline-strong grid place-items-center">
-          <span className="font-serif text-base text-cream">{initial}</span>
+        <div className="h-10 w-10 rounded-full border border-white/10 bg-white/[0.03] grid place-items-center">
+          <span className="font-serif text-base text-[#F0EDE8]">{initial}</span>
         </div>
         <div className="min-w-0">
-          <p className="text-[11px] text-muted truncate">
+          <p className="text-[11px] text-white/45 truncate">
             {hour != null ? greeting(hour) : " "}
           </p>
-          <h2 className="text-sm font-medium leading-tight truncate text-cream">
-            {name}
-          </h2>
+          <h2 className="text-sm font-medium leading-tight truncate">{name}</h2>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         <AccountSwitcher value={account} onChange={onAccountChange} />
         <button
-          className="relative h-10 w-10 rounded-full grid place-items-center hairline-strong hover:bg-white/[0.03] press"
+          className="relative h-10 w-10 rounded-full grid place-items-center border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] press"
           aria-label="Notifications"
         >
-          <Bell size={15} className="text-muted" strokeWidth={1.8} />
+          <Bell size={16} className="icon-muted" strokeWidth={1.8} />
         </button>
       </div>
     </header>

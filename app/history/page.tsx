@@ -157,16 +157,20 @@ export default function HistoryPage() {
               </p>
               <ul className="card divide-y divide-line overflow-hidden">
                 <AnimatePresence initial={false}>
-                  {g.items.map((t) => {
+                  {g.items.map((t, i) => {
                     const cat = findCategory(t.account, t.category);
                     return (
                       <motion.li
                         key={t.id}
                         layout
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, x: 24 }}
+                        animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -40 }}
-                        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{
+                          duration: 0.35,
+                          delay: i * 0.04,
+                          ease: [0.22, 1, 0.36, 1],
+                        }}
                         className="group flex items-center gap-3 px-4 py-3.5"
                       >
                         <div className="h-9 w-9 shrink-0 rounded-full bg-[#0F0F16] hairline grid place-items-center text-base">
