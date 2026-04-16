@@ -201,11 +201,18 @@ export function parseCsv(
       "description",
       "libelle",
       "libellé",
+      "label",
       "memo",
       "details",
       "détails",
+      "nom",
     ]),
-    account: findHeader(headers, ["account", "compte"]),
+    account: findHeader(headers, [
+      "account",
+      "compte",
+      "profile",
+      "profil",
+    ]),
     income: findHeader(headers, ["credit", "crédit", "income", "revenu"]),
     expense: findHeader(headers, ["debit", "débit", "expense", "depense", "dépense"]),
   };
@@ -314,7 +321,7 @@ export function parseJson(
   }
 
   const rows: Omit<Transaction, "id">[] = [];
-  list.forEach((t, i) => {
+  list.forEach((t: any, i) => {
     if (
       !t ||
       typeof t.amount !== "number" ||
@@ -325,13 +332,24 @@ export function parseJson(
       report.errors.push(`Entrée ${i + 1}: structure invalide`);
       return;
     }
-    const account: AccountType = t.account === "pro" ? "pro" : "perso";
+    // Accept both { account } (Trace) and { profile } (old app)
+    const rawAccount = t.account ?? t.profile;
+    const account: AccountType = rawAccount === "pro" ? "pro" : "perso";
+    // Accept both { note } (Trace) and { label } (old app)
+    const rawNote: string | undefined = t.note ?? t.label;
+    // Resolve category via label matching against our internal lists
+    const rawCategory: string = t.category ?? "";
+    const category = rawCategory
+      ? resolveCategory(account, t.type, rawCategory)
+      : t.type === "income"
+      ? "other_income"
+      : "other_expense";
     rows.push({
       account,
       type: t.type,
       amount: Math.abs(t.amount),
-      category: t.category ?? "other_expense",
-      note: t.note,
+      category,
+      note: rawNote && rawNote.length > 0 ? rawNote : undefined,
       date: new Date(t.date).toISOString(),
     });
     report.imported++;

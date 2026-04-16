@@ -65,7 +65,11 @@ export default function SettingsPage() {
         } importée${result.report.imported > 1 ? "s" : ""}`,
       );
     } else {
-      showToast("Import échoué", "red");
+      const firstErr = result.report.errors[0];
+      showToast(
+        firstErr ? `Échec: ${firstErr.slice(0, 60)}` : "Import échoué",
+        "red",
+      );
     }
     setReport(result.report);
     if (fileRef.current) fileRef.current.value = "";
