@@ -240,26 +240,24 @@ export function QuickAdd({
                 </div>
               </div>
 
-              {/* Note + date */}
-              <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
-                <input
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="Description (optionnel)"
-                  className="rounded-2xl bg-white/65 border border-[#3D2F1F]/10 px-4 py-3 text-sm placeholder:text-[#3D2F1F]/45 text-[#3D2F1F] focus:outline-none focus:border-white/25"
-                />
-                <label className="relative press">
-                  <span className="sr-only">Date</span>
-                  <div className="h-full inline-flex items-center gap-2 rounded-2xl bg-white/65 border border-[#3D2F1F]/10 px-3 py-3 text-sm cursor-pointer text-[#3D2F1F]">
+              {/* Date (above so past months are obvious) */}
+              <div className="mt-6">
+                <p className="label mb-2">
+                  Date · tape pour changer (mois précédents OK)
+                </p>
+                <label className="relative press block">
+                  <div className="w-full inline-flex items-center gap-2.5 rounded-2xl bg-white/70 border border-[#3D2F1F]/12 px-4 py-3 text-sm cursor-pointer text-[#3D2F1F]">
                     <Calendar
-                      size={15}
-                      className="text-[#3D2F1F]/55"
+                      size={16}
+                      className="text-[#3D2F1F]/60"
                       strokeWidth={1.8}
                     />
-                    <span className="tabular-nums">
+                    <span className="tabular-nums font-medium">
                       {new Date(date).toLocaleDateString("fr-FR", {
-                        day: "2-digit",
-                        month: "2-digit",
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
                       })}
                     </span>
                   </div>
@@ -270,6 +268,16 @@ export function QuickAdd({
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                 </label>
+              </div>
+
+              {/* Note */}
+              <div className="mt-3">
+                <input
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Description (optionnel)"
+                  className="w-full rounded-2xl bg-white/65 border border-[#3D2F1F]/10 px-4 py-3 text-sm placeholder:text-[#3D2F1F]/45 text-[#3D2F1F] focus:outline-none focus:border-[#7B9B75]/30"
+                />
               </div>
 
               {/* Keypad */}
