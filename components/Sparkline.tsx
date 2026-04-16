@@ -33,13 +33,19 @@ export function Sparkline({
       labels.push(iso);
       idx.set(iso, i);
     }
+    const windowStartIso = labels[0];
+    // Initial balance = sum of all tx that occurred BEFORE the window
+    let initialBalance = 0;
     txs.forEach((t) => {
       const k = t.date.slice(0, 10);
-      const i = idx.get(k);
-      if (i == null) return;
-      series[i] += t.type === "income" ? t.amount : -t.amount;
+      if (k < windowStartIso) {
+        initialBalance += t.type === "income" ? t.amount : -t.amount;
+      } else if (idx.has(k)) {
+        const i = idx.get(k)!;
+        series[i] += t.type === "income" ? t.amount : -t.amount;
+      }
     });
-    let acc = 0;
+    let acc = initialBalance;
     const cum = series.map((v) => (acc += v));
     return labels.map((iso, i) => ({ date: iso, value: cum[i] }));
   }, [txs, days]);

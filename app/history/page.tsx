@@ -269,12 +269,18 @@ function SwipeRow({
       }}
       className="relative"
     >
-      <motion.div
-        className="absolute inset-0 rounded-2xl flex items-center justify-end pr-5"
+      <motion.button
+        type="button"
+        onClick={() => {
+          haptic([10, 30, 20]);
+          onRemove(tx.id);
+        }}
+        className="absolute inset-0 rounded-2xl flex items-center justify-end pr-5 cursor-pointer"
         style={{ background: bg }}
+        aria-label="Supprimer"
       >
         <Trash2 size={16} className="text-[#C47A6B]" />
-      </motion.div>
+      </motion.button>
 
       <motion.div
         drag="x"

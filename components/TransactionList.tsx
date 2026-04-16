@@ -58,12 +58,15 @@ function Row({
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       className="relative"
     >
-      <motion.div
-        className="absolute inset-0 rounded-2xl flex items-center justify-end pr-5"
+      <motion.button
+        type="button"
+        onClick={() => onRemove(tx.id)}
+        className="absolute inset-0 rounded-2xl flex items-center justify-end pr-5 cursor-pointer"
         style={{ background: bg }}
+        aria-label="Supprimer"
       >
         <Trash2 size={16} className="text-[#C47A6B]" />
-      </motion.div>
+      </motion.button>
 
       <motion.div
         drag="x"

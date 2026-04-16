@@ -139,8 +139,8 @@ export function QuickAdd({
               <X size={16} strokeWidth={2.4} />
             </button>
 
-            {/* Scrollable content */}
-            <div className="overflow-y-auto px-6 sm:px-7 pt-6 pb-3">
+            {/* Scrollable content — flex-1 + min-h-0 so the footer stays visible */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-6 sm:px-7 pt-6 pb-3">
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/15" />
 
               {/* Toggle Recevoir / Dépenser */}
