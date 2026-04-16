@@ -3,13 +3,17 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { eur } from "@/lib/format";
-import { findCategory, type Transaction } from "@/lib/types";
+import {
+  findCategory,
+  isTransferCategory,
+  type Transaction,
+} from "@/lib/types";
 
 export function CategoryBreakdown({ txs }: { txs: Transaction[] }) {
   const items = useMemo(() => {
     const totals = new Map<string, number>();
     txs
-      .filter((t) => t.type === "expense")
+      .filter((t) => t.type === "expense" && !isTransferCategory(t.category))
       .forEach((t) =>
         totals.set(t.category, (totals.get(t.category) ?? 0) + t.amount),
       );

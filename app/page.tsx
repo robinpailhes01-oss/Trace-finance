@@ -12,7 +12,7 @@ import { TrendChart } from "@/components/TrendChart";
 import { CategoryBreakdown } from "@/components/CategoryBreakdown";
 import { Toast } from "@/components/Toast";
 import { useAccount, useTransactions } from "@/lib/store";
-import type { TxType } from "@/lib/types";
+import { computeTotals, type TxType } from "@/lib/types";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20, scale: 0.98 },
@@ -52,15 +52,10 @@ export default function HomePage() {
     [txs, account],
   );
 
-  const { income, expense, balance } = useMemo(() => {
-    let i = 0;
-    let e = 0;
-    filtered.forEach((t) => {
-      if (t.type === "income") i += t.amount;
-      else e += t.amount;
-    });
-    return { income: i, expense: e, balance: i - e };
-  }, [filtered]);
+  const { income, expense, balance } = useMemo(
+    () => computeTotals(filtered),
+    [filtered],
+  );
 
   const openAdd = (t: TxType) => {
     setPresetType(t);

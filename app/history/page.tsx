@@ -10,7 +10,12 @@ import {
   useTransform,
 } from "framer-motion";
 import { useAccount, useTransactions } from "@/lib/store";
-import { findCategory, type Transaction, type TxType } from "@/lib/types";
+import {
+  findCategory,
+  isTransferCategory,
+  type Transaction,
+  type TxType,
+} from "@/lib/types";
 import { eur } from "@/lib/format";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { Toast } from "@/components/Toast";
@@ -79,7 +84,7 @@ export default function HistoryPage() {
     let e = 0;
     filtered.forEach((t) => {
       if (t.type === "income") i += t.amount;
-      else e += t.amount;
+      else if (!isTransferCategory(t.category)) e += t.amount;
     });
     return { i, e };
   }, [filtered]);

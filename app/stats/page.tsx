@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, TrendingDown, TrendingUp, Minus, Pencil, Target } from "lucide-react";
 import { useAccount, useTransactions } from "@/lib/store";
-import { findCategory, type Transaction } from "@/lib/types";
+import { findCategory, isTransferCategory, type Transaction } from "@/lib/types";
 import { eur } from "@/lib/format";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { DonutSvg } from "@/components/DonutSvg";
@@ -34,11 +34,13 @@ function inRange(t: Transaction, from: Date, to: Date) {
 function totals(list: Transaction[]) {
   let i = 0;
   let e = 0;
+  let tr = 0;
   list.forEach((t) => {
     if (t.type === "income") i += t.amount;
+    else if (isTransferCategory(t.category)) tr += t.amount;
     else e += t.amount;
   });
-  return { income: i, expense: e, balance: i - e };
+  return { income: i, expense: e, transfers: tr, balance: i - e };
 }
 function monthLabel(d: Date) {
   return d.toLocaleDateString("fr-FR", { month: "short" });
@@ -94,7 +96,7 @@ export default function StatsPage() {
   const catTotals = useMemo(() => {
     const m = new Map<string, number>();
     thisMonth
-      .filter((t) => t.type === "expense")
+      .filter((t) => t.type === "expense" && !isTransferCategory(t.category))
       .forEach((t) => m.set(t.category, (m.get(t.category) ?? 0) + t.amount));
     return Array.from(m.entries())
       .map(([key, value]) => ({
@@ -154,7 +156,7 @@ export default function StatsPage() {
   const projection = avgPerDay * daysInMonth;
   const biggest = useMemo(() => {
     return thisMonth
-      .filter((t) => t.type === "expense")
+      .filter((t) => t.type === "expense" && !isTransferCategory(t.category))
       .reduce<Transaction | null>(
         (acc, t) => (acc == null || t.amount > acc.amount ? t : acc),
         null,
