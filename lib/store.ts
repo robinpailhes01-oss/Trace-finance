@@ -128,6 +128,10 @@ export function useTransactions() {
   const clear = useCallback(() => {
     setTxs([]);
     write([]);
+    // Also wipe any leftover legacy keys so nothing "comes back" on reload
+    if (typeof window !== "undefined") {
+      LEGACY_KEYS.forEach((k) => window.localStorage.removeItem(k));
+    }
   }, []);
 
   return {
