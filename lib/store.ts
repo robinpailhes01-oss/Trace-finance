@@ -2,10 +2,41 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { AccountType, Transaction } from "./types";
-import { getSupabase } from "./supabase";
 
+const STORAGE_KEY = "trace-finance-v2";
+const LEGACY_KEYS = ["trace.transactions.v2", "trace.transactions.v1"];
 const ACCOUNT_KEY = "trace.account.v1";
-const LEGACY_KEYS = ["trace-finance-v2", "trace.transactions.v2", "trace.transactions.v1"];
+
+function read(): Transaction[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as Transaction[];
+    // migrate from legacy keys if any
+    for (const key of LEGACY_KEYS) {
+      const legacy = window.localStorage.getItem(key);
+      if (legacy) {
+        try {
+          const parsed = JSON.parse(legacy);
+          if (Array.isArray(parsed)) {
+            write(parsed as Transaction[]);
+            return parsed as Transaction[];
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+function write(txs: Transaction[]) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(txs));
+}
 
 export function useAccount() {
   const [account, setAccountState] = useState<AccountType>("perso");
@@ -23,224 +54,90 @@ export function useAccount() {
   return { account, setAccount };
 }
 
-interface DbRow {
-  id: string;
-  user_id: string;
-  account: AccountType;
-  type: "income" | "expense";
-  amount: number | string;
-  category: string;
-  note: string | null;
-  date: string;
-}
-
-function fromRow(r: DbRow): Transaction {
-  return {
-    id: r.id,
-    account: r.account,
-    type: r.type,
-    amount: typeof r.amount === "string" ? parseFloat(r.amount) : r.amount,
-    category: r.category,
-    note: r.note ?? undefined,
-    date: r.date,
-  };
-}
-
-function toInsert(userId: string, t: Omit<Transaction, "id">) {
-  return {
-    user_id: userId,
-    account: t.account,
-    type: t.type,
-    amount: t.amount,
-    category: t.category,
-    note: t.note ?? null,
-    date: t.date,
-  };
-}
-
 export function useTransactions() {
   const [txs, setTxs] = useState<Transaction[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
-  // Initial load
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const supabase = getSupabase();
-        const { data, error } = await supabase
-          .from("transactions")
-          .select("*")
-          .order("date", { ascending: false });
-        if (cancelled) return;
-        if (error) {
-          console.error("[store] load failed", error.message);
-          setTxs([]);
-        } else {
-          setTxs((data ?? []).map((r: DbRow) => fromRow(r)));
-        }
-      } catch (e) {
-        console.error("[store] init failed", e);
-        setTxs([]);
-      } finally {
-        if (!cancelled) setHydrated(true);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    setTxs(read());
+    setHydrated(true);
   }, []);
 
   const add = useCallback(
-    async (tx: Omit<Transaction, "id" | "date"> & { date?: string }) => {
-      const supabase = getSupabase();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const row = toInsert(user.id, {
-        ...tx,
-        date: tx.date ?? new Date().toISOString(),
+    (tx: Omit<Transaction, "id" | "date"> & { date?: string }) => {
+      setTxs((prev) => {
+        const next: Transaction[] = [
+          {
+            ...tx,
+            id: crypto.randomUUID(),
+            date: tx.date ?? new Date().toISOString(),
+          },
+          ...prev,
+        ];
+        write(next);
+        return next;
       });
-      // optimistic
-      const tempId = `temp-${crypto.randomUUID()}`;
-      const optimistic: Transaction = {
-        id: tempId,
-        account: row.account,
-        type: row.type,
-        amount: row.amount,
-        category: row.category,
-        note: row.note ?? undefined,
-        date: row.date,
-      };
-      setTxs((prev) => [optimistic, ...prev]);
-      const { data, error } = await supabase
-        .from("transactions")
-        .insert(row)
-        .select()
-        .single();
-      if (error || !data) {
-        console.error("[store] insert failed", error?.message);
-        setTxs((prev) => prev.filter((t) => t.id !== tempId));
-        return;
-      }
-      const real = fromRow(data as DbRow);
-      setTxs((prev) => prev.map((t) => (t.id === tempId ? real : t)));
     },
     [],
   );
 
-  const remove = useCallback(async (id: string) => {
-    let snapshot: Transaction[] = [];
+  const remove = useCallback((id: string) => {
     setTxs((prev) => {
-      snapshot = prev;
-      return prev.filter((t) => t.id !== id);
+      const next = prev.filter((t) => t.id !== id);
+      write(next);
+      return next;
     });
-    const supabase = getSupabase();
-    const { error } = await supabase.from("transactions").delete().eq("id", id);
-    if (error) {
-      console.error("[store] delete failed", error.message);
-      setTxs(snapshot);
-    }
   }, []);
 
   const bulkAdd = useCallback(
-    async (list: Omit<Transaction, "id">[]) => {
+    (list: Omit<Transaction, "id">[]) => {
       if (list.length === 0) return;
-      const supabase = getSupabase();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const rows = list.map((t) => toInsert(user.id, t));
-      const { data, error } = await supabase
-        .from("transactions")
-        .insert(rows)
-        .select();
-      if (error) {
-        console.error("[store] bulkAdd failed", error.message);
-        return;
-      }
-      const added = (data ?? []).map((r: DbRow) => fromRow(r));
-      setTxs((prev) =>
-        [...added, ...prev].sort((a, b) => (a.date < b.date ? 1 : -1)),
+      setTxs((prev) => {
+        const toAdd: Transaction[] = list.map((t) => ({
+          ...t,
+          id: crypto.randomUUID(),
+        }));
+        const next = [...toAdd, ...prev].sort((a, b) =>
+          a.date < b.date ? 1 : -1,
+        );
+        write(next);
+        return next;
+      });
+    },
+    [],
+  );
+
+  const mergeById = useCallback((list: Transaction[]) => {
+    setTxs((prev) => {
+      const existing = new Set(prev.map((t) => t.id));
+      const toAdd = list.filter((t) => !existing.has(t.id));
+      const next = [...toAdd, ...prev].sort((a, b) =>
+        a.date < b.date ? 1 : -1,
       );
-    },
-    [],
-  );
-
-  const replaceAll = useCallback(
-    async (list: Transaction[]) => {
-      const supabase = getSupabase();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { error: delErr } = await supabase
-        .from("transactions")
-        .delete()
-        .eq("user_id", user.id);
-      if (delErr) {
-        console.error("[store] replace delete failed", delErr.message);
-        return;
-      }
-      if (list.length > 0) {
-        const rows = list.map((t) => toInsert(user.id, t));
-        const { data, error } = await supabase
-          .from("transactions")
-          .insert(rows)
-          .select();
-        if (error) {
-          console.error("[store] replace insert failed", error.message);
-          setTxs([]);
-          return;
-        }
-        const mapped: Transaction[] = (data ?? []).map((r: DbRow) => fromRow(r));
-        mapped.sort((a, b) => (a.date < b.date ? 1 : -1));
-        setTxs(mapped);
-      } else {
-        setTxs([]);
-      }
-    },
-    [],
-  );
-
-  const clear = useCallback(async () => {
-    const supabase = getSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    setTxs([]);
-    const { error } = await supabase
-      .from("transactions")
-      .delete()
-      .eq("user_id", user.id);
-    if (error) console.error("[store] clear failed", error.message);
+      write(next);
+      return next;
+    });
   }, []);
 
-  return { txs, add, remove, bulkAdd, replaceAll, clear, hydrated };
-}
+  const replaceAll = useCallback((list: Transaction[]) => {
+    const sorted = [...list].sort((a, b) => (a.date < b.date ? 1 : -1));
+    setTxs(sorted);
+    write(sorted);
+  }, []);
 
-/**
- * Read any remaining transactions from the legacy localStorage keys.
- * Used by the Settings page to offer a "push local → cloud" migration.
- */
-export function readLegacyLocalTransactions(): Transaction[] {
-  if (typeof window === "undefined") return [];
-  for (const key of LEGACY_KEYS) {
-    const raw = window.localStorage.getItem(key);
-    if (!raw) continue;
-    try {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed as Transaction[];
-      if (parsed && typeof parsed === "object") {
-        const perso = parsed.perso?.transactions ?? [];
-        const pro = parsed.pro?.transactions ?? [];
-        if (Array.isArray(perso) || Array.isArray(pro)) {
-          return [...perso, ...pro];
-        }
-      }
-    } catch {
-      // ignore bad JSON and continue
-    }
-  }
-  return [];
-}
+  const clear = useCallback(() => {
+    setTxs([]);
+    write([]);
+  }, []);
 
-export function clearLegacyLocalTransactions() {
-  if (typeof window === "undefined") return;
-  LEGACY_KEYS.forEach((k) => window.localStorage.removeItem(k));
+  return {
+    txs,
+    add,
+    remove,
+    bulkAdd,
+    mergeById,
+    replaceAll,
+    clear,
+    hydrated,
+  };
 }

@@ -1,26 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
-  Upload,
   Download,
   FileText,
   Trash2,
   Check,
   AlertCircle,
-  LogOut,
-  CloudUpload,
-  Mail,
 } from "lucide-react";
-import {
-  useAccount,
-  useTransactions,
-  readLegacyLocalTransactions,
-  clearLegacyLocalTransactions,
-} from "@/lib/store";
+import { useAccount, useTransactions } from "@/lib/store";
 import {
   parseCsv,
   parseJson,
@@ -32,14 +22,12 @@ import {
 } from "@/lib/importExport";
 import { Toast } from "@/components/Toast";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
-import { getSupabase } from "@/lib/supabase";
 
 type Mode = "merge" | "replace";
 
 export default function SettingsPage() {
   const { account, setAccount } = useAccount();
   const { txs, bulkAdd, replaceAll, clear, hydrated } = useTransactions();
-  const router = useRouter();
 
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [mode, setMode] = useState<Mode>("merge");
@@ -49,22 +37,6 @@ export default function SettingsPage() {
     message: string;
     tone: "green" | "red";
   }>({ open: false, message: "", tone: "green" });
-
-  const [email, setEmail] = useState<string | null>(null);
-  const [legacyCount, setLegacyCount] = useState(0);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
-        setEmail(user?.email ?? null);
-      } catch {
-        setEmail(null);
-      }
-    })();
-    setLegacyCount(readLegacyLocalTransactions().length);
-  }, []);
 
   const showToast = (message: string, tone: "green" | "red" = "green") => {
     setToast({ open: true, message, tone });
@@ -81,14 +53,11 @@ export default function SettingsPage() {
 
     if (result.rows.length > 0) {
       if (mode === "replace") {
-        await replaceAll(
-          result.rows.map((r) => ({
-            ...r,
-            id: crypto.randomUUID(),
-          })),
+        replaceAll(
+          result.rows.map((r) => ({ ...r, id: crypto.randomUUID() })),
         );
       } else {
-        await bulkAdd(result.rows);
+        bulkAdd(result.rows);
       }
       showToast(
         `${result.report.imported} transaction${
@@ -125,38 +94,15 @@ export default function SettingsPage() {
     showToast("Modèle CSV téléchargé");
   };
 
-  const clearAll = async () => {
+  const clearAll = () => {
     if (
       window.confirm(
         "Supprimer toutes les transactions ? Cette action est irréversible.",
       )
     ) {
-      await clear();
+      clear();
       showToast("Données effacées", "red");
     }
-  };
-
-  const signOut = async () => {
-    try {
-      const supabase = getSupabase();
-      await supabase.auth.signOut();
-    } finally {
-      router.replace("/login");
-    }
-  };
-
-  const importLocalToCloud = async () => {
-    const local = readLegacyLocalTransactions();
-    if (local.length === 0) {
-      showToast("Rien à importer", "red");
-      return;
-    }
-    // Strip ids so Supabase assigns fresh uuids (avoids conflicts with any earlier imports)
-    const stripped = local.map(({ id: _id, ...rest }) => rest);
-    await bulkAdd(stripped);
-    clearLegacyLocalTransactions();
-    setLegacyCount(0);
-    showToast(`${local.length} transactions synchronisées ☁`);
   };
 
   return (
@@ -172,77 +118,11 @@ export default function SettingsPage() {
         <AccountSwitcher value={account} onChange={setAccount} />
       </header>
 
-      {/* COMPTE */}
-      <section className="mt-6 card-lg p-6">
-        <p className="label mb-3">Compte connecté</p>
-        <div className="flex items-center gap-3">
-          <div
-            className="h-10 w-10 rounded-full grid place-items-center shrink-0"
-            style={{
-              background: "linear-gradient(135deg, #4ECCA3 0%, #2A9D8F 100%)",
-              color: "#fff",
-            }}
-          >
-            <Mail size={16} strokeWidth={2} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium truncate text-[#F0EDE8]">
-              {email ?? "Non connecté"}
-            </p>
-            <p className="text-[11px] text-white/45">
-              Tes données sont stockées en privé · chiffré en transit
-            </p>
-          </div>
-          <button
-            onClick={signOut}
-            className="press inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] px-3 py-2 text-xs text-white/80"
-          >
-            <LogOut size={13} strokeWidth={2} />
-            Déconnexion
-          </button>
-        </div>
-
-        {legacyCount > 0 && (
-          <div
-            className="mt-5 rounded-2xl p-4 flex items-start gap-3"
-            style={{
-              border: "1px solid rgba(78,204,163,0.25)",
-              background: "rgba(78,204,163,0.08)",
-            }}
-          >
-            <CloudUpload size={18} className="text-[#4ECCA3] shrink-0 mt-0.5" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm text-[#F0EDE8] font-medium">
-                Transférer l&apos;historique local vers ton compte
-              </p>
-              <p className="text-[12px] text-white/60 mt-1">
-                {legacyCount} transactions trouvées dans ton navigateur. On les
-                pousse dans ton compte cloud pour les retrouver sur tous tes
-                appareils.
-              </p>
-              <button
-                onClick={importLocalToCloud}
-                className="press mt-3 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
-                style={{
-                  background: "#4ECCA3",
-                  color: "#0A0A0F",
-                  boxShadow: "0 8px 24px -8px rgba(78,204,163,0.55)",
-                }}
-              >
-                <CloudUpload size={14} strokeWidth={2.4} />
-                Synchroniser maintenant
-              </button>
-            </div>
-          </div>
-        )}
-      </section>
-
       {/* IMPORT */}
-      <section className="mt-5 card-lg p-6">
+      <section className="mt-6 card-lg p-6">
         <p className="label mb-2">Importer des données</p>
         <p className="text-sm text-white/60 mb-5">
-          Glisse un fichier <span className="text-white">CSV</span> (banque,
-          Notion, Google Sheets, Excel, ton ancienne app…) ou un export{" "}
+          Glisse un fichier <span className="text-white">CSV</span> ou un export{" "}
           <span className="text-white">JSON</span> Trace.
         </p>
 
@@ -269,12 +149,6 @@ export default function SettingsPage() {
             );
           })}
         </div>
-
-        <p className="text-[11px] text-white/40 mb-4">
-          {mode === "merge"
-            ? "Les nouvelles lignes s'ajoutent à ton historique existant."
-            : "Remplace intégralement ton historique actuel par le fichier."}
-        </p>
 
         <div className="grid grid-cols-[1fr_auto] gap-2">
           <input
@@ -311,18 +185,6 @@ export default function SettingsPage() {
                 </>
               )}
             </p>
-            {report.errors.length > 0 && (
-              <details className="mt-2">
-                <summary className="text-[11px] text-white/50 cursor-pointer">
-                  Voir les détails ({report.errors.length})
-                </summary>
-                <ul className="mt-2 text-[11px] text-white/55 space-y-0.5 max-h-40 overflow-auto">
-                  {report.errors.slice(0, 50).map((e, i) => (
-                    <li key={i}>• {e}</li>
-                  ))}
-                </ul>
-              </details>
-            )}
           </div>
         )}
       </section>
@@ -331,8 +193,7 @@ export default function SettingsPage() {
       <section className="mt-5 card-lg p-6">
         <p className="label mb-2">Exporter ta donnée</p>
         <p className="text-sm text-white/60 mb-4">
-          Télécharge une sauvegarde complète de tes {hydrated ? txs.length : "…"}{" "}
-          transactions.
+          Sauvegarde de tes {hydrated ? txs.length : "…"} transactions.
         </p>
         <div className="flex gap-2">
           <button
@@ -356,8 +217,7 @@ export default function SettingsPage() {
       <section className="mt-5 card-lg p-6">
         <p className="label mb-2">Zone sensible</p>
         <p className="text-sm text-white/60 mb-4">
-          Efface toutes les transactions de ton compte cloud. Pense à exporter
-          avant.
+          Efface toutes les transactions locales.
         </p>
         <button
           onClick={clearAll}
