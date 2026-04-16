@@ -157,8 +157,8 @@ export function Sparkline({
       >
         <defs>
           <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4ECCA3" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#4ECCA3" stopOpacity="0" />
+            <stop offset="0%" stopColor="#7B9B75" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#7B9B75" stopOpacity="0" />
           </linearGradient>
         </defs>
 
@@ -175,7 +175,7 @@ export function Sparkline({
           ref={pathRef}
           d={d}
           fill="none"
-          stroke="#4ECCA3"
+          stroke="#7B9B75"
           strokeWidth={1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -201,13 +201,13 @@ export function Sparkline({
         {/* Hover point */}
         {active && (
           <g>
-            <circle cx={active.x} cy={active.y} r={9} fill="#4ECCA3" opacity={0.22} />
+            <circle cx={active.x} cy={active.y} r={9} fill="#7B9B75" opacity={0.22} />
             <circle
               cx={active.x}
               cy={active.y}
               r={4}
               fill="#FFFFFF"
-              stroke="#4ECCA3"
+              stroke="#7B9B75"
               strokeWidth={1.6}
             />
           </g>
@@ -220,7 +220,7 @@ export function Sparkline({
               cx={lastX}
               cy={lastY}
               r={12}
-              fill="rgba(78,204,163,0.3)"
+              fill="rgba(123,155,117,0.3)"
               className="dot-ring"
             />
             <circle cx={lastX} cy={lastY} r={6} fill="#FFFFFF" />
@@ -238,14 +238,14 @@ export function Sparkline({
             whiteSpace: "nowrap",
           }}
         >
-          <p className="text-white/55">
+          <p className="text-[#3D2F1F]/55">
             {new Date(active.date).toLocaleDateString("fr-FR", {
               day: "numeric",
               month: "short",
               year: "numeric",
             })}
           </p>
-          <p className="amount text-base text-[#F0EDE8] tabular-nums">
+          <p className="amount text-base text-[#3D2F1F] tabular-nums">
             {eur(active.value)}
           </p>
         </div>

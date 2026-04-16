@@ -46,7 +46,7 @@ export function TrendChart({ txs }: { txs: Transaction[] }) {
           </p>
         </div>
 
-        <div className="inline-flex rounded-full border border-white/8 bg-white/[0.02] p-0.5 text-[11px]">
+        <div className="inline-flex rounded-full border border-[#3D2F1F]/10 bg-white/55 p-0.5 text-[11px]">
           {PERIODS.map((p) => {
             const active = period === p.key;
             return (
@@ -54,13 +54,13 @@ export function TrendChart({ txs }: { txs: Transaction[] }) {
                 key={p.key}
                 onClick={() => setPeriod(p.key)}
                 className={`relative px-2.5 py-1 rounded-full transition-colors duration-200 ${
-                  active ? "text-[#0A0A0F]" : "text-white/55"
+                  active ? "text-[#F5EBDD]" : "text-[#3D2F1F]/55"
                 }`}
               >
                 {active && (
                   <motion.span
                     layoutId="trend-period-pill"
-                    className="absolute inset-0 rounded-full bg-[#F0EDE8]"
+                    className="absolute inset-0 rounded-full bg-[#3D2F1F]"
                     transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   />
                 )}

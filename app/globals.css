@@ -3,20 +3,25 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  --c-bg-a: #0d1f1a;
-  --c-bg-b: #080c0b;
-  --c-bg-c: #0a0a0f;
-  --c-cream: #f0ede8;
-  --c-teal: #4ecca3;
-  --c-red: #ff6b6b;
+  color-scheme: light;
+  --c-bg-a: #f5ebdd;
+  --c-bg-b: #ebd9ba;
+  --c-bg-c: #dcc4a0;
+  --c-ink: #3d2f1f;
+  --c-ink-soft: #6b5641;
+  --c-ink-muted: rgba(61, 47, 31, 0.55);
+  --c-sage: #7b9b75;
+  --c-sage-deep: #5f7d5a;
+  --c-terra: #c47a6b;
+  --c-terra-deep: #a0594b;
+  --c-gold: #b89855;
 }
 
 html,
 body {
   min-height: 100%;
-  color: var(--c-cream);
-  background: var(--c-bg-c);
+  color: var(--c-ink);
+  background: var(--c-bg-a);
 }
 
 * {
@@ -31,32 +36,30 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(61, 47, 31, 0.18);
   border-radius: 9999px;
 }
 
-/* ============================================================
-   Deep gradient background
-   ============================================================ */
+/* Warm bohème gradient background */
 .app-bg {
   position: relative;
-  background: linear-gradient(180deg, #0d1f1a 0%, #080c0b 40%, #0a0a0f 100%);
+  background: linear-gradient(180deg, #f5ebdd 0%, #ecdcc0 40%, #e1cda7 100%);
   min-height: 100vh;
   isolation: isolate;
 }
 
-/* Top spotlight — fixed */
+/* Soft sage halo at top */
 .spotlight {
   position: fixed;
   top: -200px;
   left: 50%;
   transform: translateX(-50%);
   width: 140vw;
-  height: 560px;
+  height: 520px;
   pointer-events: none;
   background: radial-gradient(
     ellipse 60% 60% at 50% 50%,
-    rgba(78, 204, 163, 0.12) 0%,
+    rgba(155, 174, 148, 0.2) 0%,
     transparent 70%
   );
   z-index: 0;
@@ -82,122 +85,99 @@ main {
 }
 
 /* ============================================================
-   Glass surfaces — true glassmorphism
+   Cards — light glass on warm cream
    ============================================================ */
-.glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+.glass,
+.card,
+.card-lg {
+  background: rgba(255, 252, 244, 0.6);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(61, 47, 31, 0.08);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    0 8px 24px rgba(120, 90, 50, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
   border-radius: 20px;
 }
-
 .card-lg {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
   border-radius: 28px;
 }
 
 .hairline {
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(61, 47, 31, 0.08);
 }
-
 .hairline-strong {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(61, 47, 31, 0.14);
 }
 
 /* ============================================================
-   Glass action pills (Recevoir / Dépenser)
+   Buttons
    ============================================================ */
 .btn-glass {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 252, 244, 0.55);
+  border: 1px solid rgba(61, 47, 31, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 9999px;
-  color: var(--c-cream);
+  color: var(--c-ink);
   font-weight: 500;
-  transition:
-    border-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
-    background 200ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: all 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .btn-glass-green:hover {
-  border-color: rgba(78, 204, 163, 0.25);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(123, 155, 117, 0.4);
+  background: rgba(255, 252, 244, 0.75);
 }
 .btn-glass-green:active,
 .btn-glass-green.is-active {
   transform: scale(0.97);
-  border-color: rgba(78, 204, 163, 0.4);
-  box-shadow: 0 4px 20px rgba(78, 204, 163, 0.12);
+  border-color: rgba(123, 155, 117, 0.55);
+  box-shadow: 0 4px 16px rgba(123, 155, 117, 0.22);
 }
 .btn-glass-red:hover {
-  border-color: rgba(255, 107, 107, 0.25);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(196, 122, 107, 0.4);
+  background: rgba(255, 252, 244, 0.75);
 }
 .btn-glass-red:active,
 .btn-glass-red.is-active {
   transform: scale(0.97);
-  border-color: rgba(255, 107, 107, 0.4);
-  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.12);
+  border-color: rgba(196, 122, 107, 0.55);
+  box-shadow: 0 4px 16px rgba(196, 122, 107, 0.22);
 }
 
 .btn-cream {
-  background: #f0ede8;
-  color: #0a0a0f;
+  background: var(--c-ink);
+  color: #f5ebdd;
   border-radius: 9999px;
   transition: all 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 8px 24px -8px rgba(61, 47, 31, 0.4);
 }
 .btn-cream:hover {
-  filter: brightness(1.04);
+  filter: brightness(1.15);
 }
 .btn-cream:active {
   transform: scale(0.97);
 }
 
-/* Micro icon circles */
+/* Icon circles */
 .icon-circle-green {
-  background: rgba(78, 204, 163, 0.15);
-  color: #4ecca3;
+  background: rgba(123, 155, 117, 0.2);
+  color: var(--c-sage-deep);
 }
 .icon-circle-red {
-  background: rgba(255, 107, 107, 0.15);
-  color: #ff6b6b;
+  background: rgba(196, 122, 107, 0.2);
+  color: var(--c-terra-deep);
 }
 
-/* ============================================================
-   FAB — pulsing teal circle
-   ============================================================ */
+/* FAB */
 .fab {
   width: 56px;
   height: 56px;
   border-radius: 9999px;
-  background: #4ecca3;
-  color: #0a0a0f;
+  background: var(--c-sage);
+  color: #fff;
   display: grid;
   place-items: center;
   position: relative;
@@ -205,14 +185,13 @@ main {
     transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
     filter 200ms cubic-bezier(0.22, 1, 0.36, 1);
   box-shadow:
-    0 0 30px rgba(78, 204, 163, 0.5),
-    0 0 60px rgba(78, 204, 163, 0.2),
+    0 0 24px rgba(123, 155, 117, 0.4),
+    0 0 48px rgba(123, 155, 117, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   animation: fab-pulse 2s ease-in-out infinite;
 }
 .fab:hover {
   transform: scale(1.05);
-  filter: brightness(1.05);
 }
 .fab:active {
   transform: scale(0.97);
@@ -222,19 +201,18 @@ main {
   0%,
   100% {
     box-shadow:
-      0 0 20px rgba(78, 204, 163, 0.5),
-      0 0 40px rgba(78, 204, 163, 0.2),
+      0 0 20px rgba(123, 155, 117, 0.4),
+      0 0 40px rgba(123, 155, 117, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
   50% {
     box-shadow:
-      0 0 36px rgba(78, 204, 163, 1),
-      0 0 72px rgba(78, 204, 163, 0.35),
+      0 0 30px rgba(123, 155, 117, 0.7),
+      0 0 60px rgba(123, 155, 117, 0.3),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 }
 
-/* Generic press */
 .press {
   transition:
     transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -254,62 +232,57 @@ main {
   font-feature-settings: "tnum" 1, "lnum" 1;
   letter-spacing: -0.02em;
   font-weight: 300;
-  color: var(--c-cream);
+  color: var(--c-ink);
 }
 
 .amount-hero {
   font-size: clamp(52px, 14vw, 80px);
   line-height: 1;
   font-weight: 300;
-  text-shadow: 0 0 40px rgba(78, 204, 163, 0.15);
 }
 
 .label {
   font-size: 10px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--c-ink-muted);
   font-family: var(--font-inter), system-ui, sans-serif;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .num-green {
-  color: #4ecca3;
+  color: var(--c-sage-deep);
   font-weight: 600;
-  text-shadow: 0 0 20px rgba(78, 204, 163, 0.3);
 }
 .num-red {
-  color: #ff6b6b;
+  color: var(--c-terra-deep);
   font-weight: 600;
-  text-shadow: 0 0 20px rgba(255, 107, 107, 0.25);
 }
 
 .text-positive {
-  color: #4ecca3;
+  color: var(--c-sage-deep);
 }
 .text-negative {
-  color: #ff6b6b;
+  color: var(--c-terra-deep);
 }
 
 .divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(61, 47, 31, 0.1);
 }
 
-/* ============================================================
-   Mini cards (Revenus/Dépenses) — colored top border
-   ============================================================ */
+/* Mini stat cards */
 .stat-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 252, 244, 0.55);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid rgba(61, 47, 31, 0.08);
   border-radius: 18px;
   overflow: hidden;
   box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    0 6px 18px rgba(120, 90, 50, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 .stat-card::before {
   content: "";
@@ -318,19 +291,17 @@ main {
   right: 0;
   top: 0;
   height: 2px;
-  background: var(--stat-color, rgba(255, 255, 255, 0.3));
-  opacity: 0.6;
+  background: var(--stat-color, rgba(61, 47, 31, 0.3));
+  opacity: 0.65;
 }
 .stat-card-green {
-  --stat-color: #4ecca3;
+  --stat-color: var(--c-sage);
 }
 .stat-card-red {
-  --stat-color: #ff6b6b;
+  --stat-color: var(--c-terra);
 }
 
-/* ============================================================
-   Sparkline anims
-   ============================================================ */
+/* Sparkline / dot animations */
 @keyframes spark-draw {
   to {
     stroke-dashoffset: 0;
@@ -364,23 +335,21 @@ main {
   }
 }
 
-/* ============================================================
-   Flash for stat cards on value change
-   ============================================================ */
+/* Flash for stat cards on value change */
 @keyframes flash-green {
   0% {
-    background-color: rgba(78, 204, 163, 0.2);
+    background-color: rgba(123, 155, 117, 0.3);
   }
   100% {
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: rgba(255, 252, 244, 0.55);
   }
 }
 @keyframes flash-red {
   0% {
-    background-color: rgba(255, 107, 107, 0.2);
+    background-color: rgba(196, 122, 107, 0.3);
   }
   100% {
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: rgba(255, 252, 244, 0.55);
   }
 }
 .flash-green {
@@ -391,5 +360,5 @@ main {
 }
 
 .icon-muted {
-  opacity: 0.8;
+  opacity: 0.7;
 }

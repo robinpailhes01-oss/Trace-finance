@@ -33,7 +33,7 @@ export function CategoryBreakdown({ txs }: { txs: Transaction[] }) {
           return (
             <li key={it.key}>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-[#F0EDE8]">
+                <span className="text-[#3D2F1F]">
                   <span className="mr-2">{cat?.emoji ?? "💸"}</span>
                   {cat?.label ?? it.key}
                 </span>
@@ -41,7 +41,7 @@ export function CategoryBreakdown({ txs }: { txs: Transaction[] }) {
                   {eur(it.value)}
                 </span>
               </div>
-              <div className="mt-2 h-1.5 w-full rounded-full bg-white/[0.05] overflow-hidden">
+              <div className="mt-2 h-1.5 w-full rounded-full bg-white/70 overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.max(6, it.pct * 100)}%` }}
@@ -53,8 +53,8 @@ export function CategoryBreakdown({ txs }: { txs: Transaction[] }) {
                   className="h-full rounded-full"
                   style={{
                     background:
-                      "linear-gradient(90deg, rgba(78,204,163,0.75), rgba(78,204,163,0.35))",
-                    boxShadow: "0 0 12px rgba(78,204,163,0.35)",
+                      "linear-gradient(90deg, rgba(123,155,117,0.75), rgba(123,155,117,0.35))",
+                    boxShadow: "0 0 12px rgba(123,155,117,0.35)",
                   }}
                 />
               </div>

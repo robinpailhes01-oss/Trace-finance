@@ -11,13 +11,13 @@ import { DonutSvg } from "@/components/DonutSvg";
 import { useSavingsGoal } from "@/lib/savingsGoal";
 
 const PALETTE = [
-  "#4ECCA3",
-  "#2DB4A0",
+  "#7B9B75",
+  "#5F7D5A",
   "#E8C96B",
   "#C9A84C",
-  "#F0EDE8",
+  "#3D2F1F",
   "#8A8A95",
-  "#FF6B6B",
+  "#C47A6B",
   "#55555F",
 ];
 
@@ -177,7 +177,7 @@ export default function StatsPage() {
   if (!hydrated) {
     return (
       <main className="mx-auto max-w-xl px-5 pt-6 pb-32">
-        <p className="text-white/40 text-sm text-center mt-20">Chargement…</p>
+        <p className="text-[#3D2F1F]/45 text-sm text-center mt-20">Chargement…</p>
       </main>
     );
   }
@@ -187,11 +187,11 @@ export default function StatsPage() {
       <header className="flex items-center justify-between">
         <Link
           href="/"
-          className="h-10 w-10 grid place-items-center rounded-full border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] press text-white/80"
+          className="h-10 w-10 grid place-items-center rounded-full border border-[#3D2F1F]/10 bg-white/60 hover:bg-white/70 press text-[#3D2F1F]/80"
         >
           <ArrowLeft size={17} strokeWidth={1.8} />
         </Link>
-        <h1 className="text-sm font-medium text-[#F0EDE8]">Statistiques</h1>
+        <h1 className="text-sm font-medium text-[#3D2F1F]">Statistiques</h1>
         <AccountSwitcher value={account} onChange={setAccount} />
       </header>
 
@@ -210,11 +210,11 @@ export default function StatsPage() {
             <p
               className="amount text-4xl tabular-nums mt-1"
               style={{
-                color: savingsRate >= 0 ? "#4ECCA3" : "#FF6B6B",
+                color: savingsRate >= 0 ? "#7B9B75" : "#C47A6B",
                 textShadow:
                   savingsRate >= 0
-                    ? "0 0 24px rgba(78,204,163,0.3)"
-                    : "0 0 24px rgba(255,107,107,0.25)",
+                    ? "0 0 24px rgba(123,155,117,0.3)"
+                    : "0 0 24px rgba(196,122,107,0.25)",
               }}
             >
               {savingsRate.toFixed(1)}%
@@ -229,17 +229,17 @@ export default function StatsPage() {
           <SummaryCell
             label="Revenus"
             value={cur.income}
-            color="#4ECCA3"
+            color="#7B9B75"
           />
           <SummaryCell
             label="Dépenses"
             value={cur.expense}
-            color="#FF6B6B"
+            color="#C47A6B"
           />
           <SummaryCell
             label="Épargne"
             value={Math.max(0, savings)}
-            color="#F0EDE8"
+            color="#3D2F1F"
             amountSign="+"
           />
         </div>
@@ -258,7 +258,7 @@ export default function StatsPage() {
       <section className="mt-5 card-lg p-6">
         <p className="label mb-4">Répartition · {currentMonthName}</p>
         {donutData.length === 0 ? (
-          <p className="text-sm text-white/40 py-8 text-center">
+          <p className="text-sm text-[#3D2F1F]/45 py-8 text-center">
             Aucune dépense ce mois-ci
           </p>
         ) : (
@@ -282,12 +282,12 @@ export default function StatsPage() {
                     />
                     <span
                       className={`truncate ${
-                        top ? "text-[#F0EDE8] font-medium" : "text-white/70"
+                        top ? "text-[#3D2F1F] font-medium" : "text-[#3D2F1F]/70"
                       }`}
                     >
                       {c.emoji} {c.label}
                     </span>
-                    <span className="ml-auto shrink-0 tabular-nums text-xs text-white/55">
+                    <span className="ml-auto shrink-0 tabular-nums text-xs text-[#3D2F1F]/55">
                       {pct.toFixed(0)}% · {eur(c.value)}
                     </span>
                   </li>
@@ -302,18 +302,18 @@ export default function StatsPage() {
       <section className="mt-5 card-lg p-6">
         <div className="flex items-baseline justify-between mb-4">
           <p className="label">Évolution · 6 mois</p>
-          <div className="flex items-center gap-3 text-[10px] text-white/55 uppercase tracking-wider">
+          <div className="flex items-center gap-3 text-[10px] text-[#3D2F1F]/55 uppercase tracking-wider">
             <span className="inline-flex items-center gap-1.5">
               <span
                 className="h-2 w-2 rounded-full"
-                style={{ background: "#4ECCA3" }}
+                style={{ background: "#7B9B75" }}
               />
               Rev
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span
                 className="h-2 w-2 rounded-full"
-                style={{ background: "#FF6B6B" }}
+                style={{ background: "#C47A6B" }}
               />
               Dép
             </span>
@@ -361,7 +361,7 @@ export default function StatsPage() {
               setGoalInput(goal > 0 ? String(goal) : "");
               setEditingGoal(true);
             }}
-            className="text-[11px] text-white/55 inline-flex items-center gap-1 hover:text-white press"
+            className="text-[11px] text-[#3D2F1F]/55 inline-flex items-center gap-1 hover:text-[#3D2F1F] press"
           >
             <Pencil size={11} /> {goal > 0 ? "Modifier" : "Définir"}
           </button>
@@ -384,49 +384,49 @@ export default function StatsPage() {
               type="number"
               inputMode="decimal"
               placeholder="Ex: 500"
-              className="flex-1 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm placeholder:text-white/40 focus:outline-none focus:border-[#4ECCA3]/40 text-[#F0EDE8]"
+              className="flex-1 rounded-full border border-[#3D2F1F]/10 bg-white/60 px-4 py-2.5 text-sm placeholder:text-[#3D2F1F]/45 focus:outline-none focus:border-[#7B9B75]/40 text-[#3D2F1F]"
             />
             <button
               type="submit"
-              className="rounded-full px-4 py-2.5 text-sm font-semibold text-[#0A0A0F]"
-              style={{ background: "#4ECCA3" }}
+              className="rounded-full px-4 py-2.5 text-sm font-semibold text-[#F5EBDD]"
+              style={{ background: "#7B9B75" }}
             >
               OK
             </button>
             <button
               type="button"
               onClick={() => setEditingGoal(false)}
-              className="rounded-full border border-white/10 px-3 py-2.5 text-sm text-white/70"
+              className="rounded-full border border-[#3D2F1F]/10 px-3 py-2.5 text-sm text-[#3D2F1F]/70"
             >
               ✕
             </button>
           </form>
         ) : goal <= 0 ? (
-          <p className="text-sm text-white/55">
+          <p className="text-sm text-[#3D2F1F]/55">
             Définis un objectif mensuel pour suivre ta progression.
           </p>
         ) : goalHydrated ? (
           <>
-            <p className="text-sm text-[#F0EDE8]">
+            <p className="text-sm text-[#3D2F1F]">
               <span className="amount text-xl">{eur(Math.max(0, savings))}</span>
-              <span className="text-white/55">
+              <span className="text-[#3D2F1F]/55">
                 {" "}
                 / {eur(goal)} · {goalPct.toFixed(0)}%
               </span>
             </p>
-            <div className="mt-3 h-2 w-full rounded-full bg-white/[0.05] overflow-hidden">
+            <div className="mt-3 h-2 w-full rounded-full bg-white/70 overflow-hidden">
               <div
                 className="h-full rounded-full transition-[width] duration-700 ease-out"
                 style={{
                   width: `${goalPct}%`,
                   background:
-                    "linear-gradient(90deg, rgba(78,204,163,0.9), rgba(78,204,163,0.5))",
-                  boxShadow: "0 0 14px rgba(78,204,163,0.4)",
+                    "linear-gradient(90deg, rgba(123,155,117,0.9), rgba(123,155,117,0.5))",
+                  boxShadow: "0 0 14px rgba(123,155,117,0.4)",
                 }}
               />
             </div>
             {goalPct >= 100 && (
-              <p className="text-xs mt-2 text-[#4ECCA3]">
+              <p className="text-xs mt-2 text-[#7B9B75]">
                 Objectif atteint ✓ Bravo !
               </p>
             )}
@@ -449,8 +449,8 @@ function CircularGauge({ value }: { value: number }) {
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <defs>
           <linearGradient id="gauge-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#4ECCA3" />
-            <stop offset="100%" stopColor="#2DB4A0" />
+            <stop offset="0%" stopColor="#7B9B75" />
+            <stop offset="100%" stopColor="#5F7D5A" />
           </linearGradient>
         </defs>
         {/* Track */}
@@ -475,7 +475,7 @@ function CircularGauge({ value }: { value: number }) {
           strokeDashoffset={offset}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
           style={{
-            filter: "drop-shadow(0 0 10px rgba(78,204,163,0.55))",
+            filter: "drop-shadow(0 0 10px rgba(123,155,117,0.55))",
             transition: "stroke-dashoffset 900ms cubic-bezier(0.22,1,0.36,1)",
           }}
         />
@@ -499,7 +499,7 @@ function SummaryCell({
   amountSign?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3">
+    <div className="rounded-2xl border border-white/[0.06] bg-white/55 p-3">
       <p className="label">{label}</p>
       <p
         className="amount mt-1.5 text-lg tabular-nums"
@@ -522,8 +522,8 @@ function CompareChip({
   invert?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3 flex items-center justify-between">
-      <p className="text-[11px] text-white/55">{label}</p>
+    <div className="rounded-2xl border border-white/[0.06] bg-white/55 p-3 flex items-center justify-between">
+      <p className="text-[11px] text-[#3D2F1F]/55">{label}</p>
       <DeltaBadge value={delta} suffix="%" invert={invert} />
     </div>
   );
@@ -540,7 +540,7 @@ function DeltaBadge({
 }) {
   if (value == null) {
     return (
-      <span className="text-[11px] text-white/40 inline-flex items-center gap-1">
+      <span className="text-[11px] text-[#3D2F1F]/45 inline-flex items-center gap-1">
         <Minus size={12} /> n/a
       </span>
     );
@@ -550,13 +550,13 @@ function DeltaBadge({
   const color = neutral
     ? "rgba(255,255,255,0.5)"
     : positive
-    ? "#4ECCA3"
-    : "#FF6B6B";
+    ? "#7B9B75"
+    : "#C47A6B";
   const bg = neutral
     ? "rgba(255,255,255,0.05)"
     : positive
-    ? "rgba(78,204,163,0.12)"
-    : "rgba(255,107,107,0.12)";
+    ? "rgba(123,155,117,0.12)"
+    : "rgba(196,122,107,0.12)";
   const Icon = neutral ? Minus : value > 0 ? TrendingUp : TrendingDown;
   const sign = value > 0 ? "+" : "";
   return (
@@ -602,8 +602,8 @@ function MonthBars({
                   aria-hidden
                   className="absolute -top-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full"
                   style={{
-                    background: "#4ECCA3",
-                    boxShadow: "0 0 8px rgba(78,204,163,0.75)",
+                    background: "#7B9B75",
+                    boxShadow: "0 0 8px rgba(123,155,117,0.75)",
                   }}
                 />
               )}
@@ -617,9 +617,9 @@ function MonthBars({
                     width: "42%",
                     height: inH,
                     background:
-                      "linear-gradient(180deg, rgba(78,204,163,1) 0%, rgba(78,204,163,0.55) 100%)",
+                      "linear-gradient(180deg, rgba(123,155,117,1) 0%, rgba(123,155,117,0.55) 100%)",
                     boxShadow: m.isCurrent
-                      ? "0 0 12px rgba(78,204,163,0.5)"
+                      ? "0 0 12px rgba(123,155,117,0.5)"
                       : undefined,
                     transition: "height 800ms cubic-bezier(0.22,1,0.36,1)",
                     transitionDelay: `${i * 40}ms`,
@@ -632,9 +632,9 @@ function MonthBars({
                     width: "42%",
                     height: exH,
                     background:
-                      "linear-gradient(180deg, rgba(255,107,107,1) 0%, rgba(255,107,107,0.55) 100%)",
+                      "linear-gradient(180deg, rgba(196,122,107,1) 0%, rgba(196,122,107,0.55) 100%)",
                     boxShadow: m.isCurrent
-                      ? "0 0 12px rgba(255,107,107,0.45)"
+                      ? "0 0 12px rgba(196,122,107,0.45)"
                       : undefined,
                     transition: "height 800ms cubic-bezier(0.22,1,0.36,1)",
                     transitionDelay: `${i * 40 + 50}ms`,
@@ -644,7 +644,7 @@ function MonthBars({
               </div>
               <span
                 className={`text-[11px] uppercase tracking-wider ${
-                  m.isCurrent ? "text-[#F0EDE8]" : "text-white/50"
+                  m.isCurrent ? "text-[#3D2F1F]" : "text-[#3D2F1F]/55"
                 }`}
               >
                 {m.label}
@@ -671,12 +671,12 @@ function Kpi({
 }) {
   const colors =
     accent === "green"
-      ? { c: "#4ECCA3", shadow: "0 0 18px rgba(78,204,163,0.25)" }
+      ? { c: "#7B9B75", shadow: "0 0 18px rgba(123,155,117,0.25)" }
       : accent === "red"
-      ? { c: "#FF6B6B", shadow: "0 0 18px rgba(255,107,107,0.22)" }
-      : { c: "#F0EDE8", shadow: "none" };
+      ? { c: "#C47A6B", shadow: "0 0 18px rgba(196,122,107,0.22)" }
+      : { c: "#3D2F1F", shadow: "none" };
   return (
-    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+    <div className="rounded-2xl border border-white/[0.06] bg-white/55 p-4">
       <p className="label">{label}</p>
       <p
         className="amount mt-1.5 text-xl tabular-nums"
@@ -684,7 +684,7 @@ function Kpi({
       >
         {value}
       </p>
-      {hint && <p className="text-[11px] text-white/40 mt-1">{hint}</p>}
+      {hint && <p className="text-[11px] text-[#3D2F1F]/45 mt-1">{hint}</p>}
     </div>
   );
 }

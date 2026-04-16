@@ -17,10 +17,10 @@ export function BottomNav() {
     <nav
       className="fixed bottom-0 inset-x-0 z-30 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2"
       style={{
-        background: "rgba(10,10,15,0.8)",
-        backdropFilter: "blur(30px) saturate(180%)",
-        WebkitBackdropFilter: "blur(30px) saturate(180%)",
-        borderTop: "1px solid rgba(255,255,255,0.06)",
+        background: "rgba(245,235,221,0.78)",
+        backdropFilter: "blur(24px) saturate(160%)",
+        WebkitBackdropFilter: "blur(24px) saturate(160%)",
+        borderTop: "1px solid rgba(61,47,31,0.08)",
       }}
     >
       <div className="mx-auto max-w-xl px-2 flex items-stretch justify-around gap-1">
@@ -32,7 +32,7 @@ export function BottomNav() {
               key={it.href}
               href={it.href}
               className={`relative press flex-1 flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-2xl transition-colors duration-200 ${
-                active ? "text-[#4ECCA3]" : "text-white/55 hover:text-white"
+                active ? "text-[#5F7D5A]" : "text-[#3D2F1F]/55 hover:text-[#3D2F1F]"
               }`}
             >
               {active && (
@@ -40,8 +40,8 @@ export function BottomNav() {
                   layoutId="bottomnav-pill"
                   className="absolute inset-0 rounded-2xl"
                   style={{
-                    background: "rgba(78,204,163,0.10)",
-                    border: "1px solid rgba(78,204,163,0.18)",
+                    background: "rgba(123,155,117,0.10)",
+                    border: "1px solid rgba(123,155,117,0.18)",
                   }}
                   transition={{ type: "spring", stiffness: 320, damping: 28 }}
                 />
@@ -52,7 +52,7 @@ export function BottomNav() {
                 strokeWidth={active ? 2.2 : 1.8}
                 style={
                   active
-                    ? { filter: "drop-shadow(0 0 6px rgba(78,204,163,0.55))" }
+                    ? { filter: "drop-shadow(0 0 6px rgba(123,155,117,0.55))" }
                     : undefined
                 }
               />

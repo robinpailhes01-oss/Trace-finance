@@ -87,13 +87,13 @@ export function QuickAdd({
   };
 
   const isIncome = type === "income";
-  const accent = isIncome ? "#4ECCA3" : "#FF6B6B";
+  const accent = isIncome ? "#7B9B75" : "#C47A6B";
   const accentSoft = isIncome
-    ? "rgba(78,204,163,0.15)"
-    : "rgba(255,107,107,0.15)";
+    ? "rgba(123,155,117,0.15)"
+    : "rgba(196,122,107,0.15)";
   const accentBorder = isIncome
-    ? "rgba(78,204,163,0.4)"
-    : "rgba(255,107,107,0.4)";
+    ? "rgba(123,155,117,0.4)"
+    : "rgba(196,122,107,0.4)";
 
   return (
     <AnimatePresence>
@@ -154,7 +154,7 @@ export function QuickAdd({
                 >
                   {(["income", "expense"] as TxType[]).map((t) => {
                     const active = type === t;
-                    const c = t === "income" ? "#4ECCA3" : "#FF6B6B";
+                    const c = t === "income" ? "#7B9B75" : "#C47A6B";
                     return (
                       <button
                         key={t}
@@ -165,7 +165,7 @@ export function QuickAdd({
                         }}
                         className="relative px-5 py-2 rounded-full transition-colors duration-200"
                         style={{
-                          color: active ? "#0A0A0F" : "rgba(255,255,255,0.55)",
+                          color: active ? "#F5EBDD" : "rgba(255,255,255,0.55)",
                         }}
                       >
                         {active && (
@@ -201,8 +201,8 @@ export function QuickAdd({
                     color: accent,
                     textShadow: `0 0 32px ${
                       isIncome
-                        ? "rgba(78,204,163,0.35)"
-                        : "rgba(255,107,107,0.3)"
+                        ? "rgba(123,155,117,0.35)"
+                        : "rgba(196,122,107,0.3)"
                     }`,
                   }}
                 >
@@ -225,7 +225,7 @@ export function QuickAdd({
                         className="press shrink-0 rounded-full px-4 py-2 text-sm transition duration-200"
                         style={{
                           background: active ? accent : "rgba(255,255,255,0.04)",
-                          color: active ? "#0A0A0F" : "#F0EDE8",
+                          color: active ? "#F5EBDD" : "#3D2F1F",
                           border: `1px solid ${
                             active ? accent : "rgba(255,255,255,0.08)"
                           }`,
@@ -246,14 +246,14 @@ export function QuickAdd({
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Description (optionnel)"
-                  className="rounded-2xl bg-white/[0.04] border border-white/10 px-4 py-3 text-sm placeholder:text-white/40 text-[#F0EDE8] focus:outline-none focus:border-white/25"
+                  className="rounded-2xl bg-white/65 border border-[#3D2F1F]/10 px-4 py-3 text-sm placeholder:text-[#3D2F1F]/45 text-[#3D2F1F] focus:outline-none focus:border-white/25"
                 />
                 <label className="relative press">
                   <span className="sr-only">Date</span>
-                  <div className="h-full inline-flex items-center gap-2 rounded-2xl bg-white/[0.04] border border-white/10 px-3 py-3 text-sm cursor-pointer text-[#F0EDE8]">
+                  <div className="h-full inline-flex items-center gap-2 rounded-2xl bg-white/65 border border-[#3D2F1F]/10 px-3 py-3 text-sm cursor-pointer text-[#3D2F1F]">
                     <Calendar
                       size={15}
-                      className="text-white/55"
+                      className="text-[#3D2F1F]/55"
                       strokeWidth={1.8}
                     />
                     <span className="tabular-nums">
@@ -280,7 +280,7 @@ export function QuickAdd({
                       key={k}
                       type="button"
                       onClick={() => press(k)}
-                      className="press rounded-2xl py-4 text-xl font-medium text-[#F0EDE8]"
+                      className="press rounded-2xl py-4 text-xl font-medium text-[#3D2F1F]"
                       style={{
                         background: "rgba(255,255,255,0.03)",
                         border: "1px solid rgba(255,255,255,0.06)",
@@ -289,7 +289,7 @@ export function QuickAdd({
                       {k === "back" ? (
                         <Delete
                           size={17}
-                          className="mx-auto text-white/55"
+                          className="mx-auto text-[#3D2F1F]/55"
                         />
                       ) : (
                         k
@@ -317,7 +317,7 @@ export function QuickAdd({
                 className="press w-full rounded-full py-4 text-sm font-bold inline-flex items-center justify-center gap-2 transition duration-200"
                 style={{
                   background: valid ? accent : "rgba(255,255,255,0.06)",
-                  color: valid ? "#0A0A0F" : "rgba(255,255,255,0.4)",
+                  color: valid ? "#F5EBDD" : "rgba(255,255,255,0.4)",
                   opacity: valid ? 1 : 0.4,
                   border: valid
                     ? `1px solid ${accentBorder}`
@@ -325,8 +325,8 @@ export function QuickAdd({
                   boxShadow: valid
                     ? `0 8px 28px -6px ${
                         isIncome
-                          ? "rgba(78,204,163,0.55)"
-                          : "rgba(255,107,107,0.5)"
+                          ? "rgba(123,155,117,0.55)"
+                          : "rgba(196,122,107,0.5)"
                       }`
                     : "none",
                   cursor: valid ? "pointer" : "not-allowed",

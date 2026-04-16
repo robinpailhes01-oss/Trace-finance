@@ -110,23 +110,23 @@ export default function SettingsPage() {
       <header className="flex items-center justify-between">
         <Link
           href="/"
-          className="h-10 w-10 grid place-items-center rounded-full border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] press text-white/80"
+          className="h-10 w-10 grid place-items-center rounded-full border border-[#3D2F1F]/10 bg-white/60 hover:bg-white/70 press text-[#3D2F1F]/80"
         >
           <ArrowLeft size={17} strokeWidth={1.8} />
         </Link>
-        <h1 className="text-sm font-medium text-[#F0EDE8]">Réglages</h1>
+        <h1 className="text-sm font-medium text-[#3D2F1F]">Réglages</h1>
         <AccountSwitcher value={account} onChange={setAccount} />
       </header>
 
       {/* IMPORT */}
       <section className="mt-6 card-lg p-6">
         <p className="label mb-2">Importer des données</p>
-        <p className="text-sm text-white/60 mb-5">
-          Glisse un fichier <span className="text-white">CSV</span> ou un export{" "}
-          <span className="text-white">JSON</span> Trace.
+        <p className="text-sm text-[#3D2F1F]/65 mb-5">
+          Glisse un fichier <span className="text-[#3D2F1F]">CSV</span> ou un export{" "}
+          <span className="text-[#3D2F1F]">JSON</span> Trace.
         </p>
 
-        <div className="mb-4 inline-flex rounded-full border border-white/10 bg-white/[0.03] p-0.5 text-xs">
+        <div className="mb-4 inline-flex rounded-full border border-[#3D2F1F]/10 bg-white/60 p-0.5 text-xs">
           {(
             [
               { key: "merge", label: "Ajouter" },
@@ -140,8 +140,8 @@ export default function SettingsPage() {
                 onClick={() => setMode(m.key)}
                 className="relative px-4 py-1.5 rounded-full transition-colors duration-200"
                 style={{
-                  color: active ? "#0A0A0F" : "rgba(255,255,255,0.55)",
-                  background: active ? "#F0EDE8" : "transparent",
+                  color: active ? "#F5EBDD" : "rgba(255,255,255,0.55)",
+                  background: active ? "#3D2F1F" : "transparent",
                 }}
               >
                 <span className="relative font-semibold">{m.label}</span>
@@ -159,11 +159,11 @@ export default function SettingsPage() {
               const f = e.target.files?.[0];
               if (f) handleFile(f);
             }}
-            className="block w-full text-sm text-white/70 file:mr-3 file:rounded-full file:border file:border-white/10 file:bg-white/[0.04] file:px-4 file:py-2 file:text-white file:cursor-pointer hover:file:bg-white/[0.08]"
+            className="block w-full text-sm text-[#3D2F1F]/70 file:mr-3 file:rounded-full file:border file:border-[#3D2F1F]/10 file:bg-white/65 file:px-4 file:py-2 file:text-[#3D2F1F] file:cursor-pointer hover:file:bg-white/80"
           />
           <button
             onClick={downloadTemplate}
-            className="press inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] px-3 py-2 text-xs text-white/80"
+            className="press inline-flex items-center gap-2 rounded-full border border-[#3D2F1F]/10 bg-white/60 hover:bg-white/70 px-3 py-2 text-xs text-[#3D2F1F]/80"
           >
             <FileText size={13} strokeWidth={2} />
             Modèle
@@ -171,15 +171,15 @@ export default function SettingsPage() {
         </div>
 
         {report && (
-          <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.02] p-4 text-sm">
+          <div className="mt-4 rounded-2xl border border-[#3D2F1F]/10 bg-white/55 p-4 text-sm">
             <p className="inline-flex items-center gap-2">
-              <Check size={14} className="text-[#4ECCA3]" />
-              <span className="text-white">{report.imported} importée(s)</span>
+              <Check size={14} className="text-[#7B9B75]" />
+              <span className="text-[#3D2F1F]">{report.imported} importée(s)</span>
               {report.skipped > 0 && (
                 <>
-                  <span className="text-white/40">·</span>
-                  <AlertCircle size={14} className="text-[#FF6B6B]" />
-                  <span className="text-white/70">
+                  <span className="text-[#3D2F1F]/45">·</span>
+                  <AlertCircle size={14} className="text-[#C47A6B]" />
+                  <span className="text-[#3D2F1F]/70">
                     {report.skipped} ignorée(s)
                   </span>
                 </>
@@ -192,20 +192,20 @@ export default function SettingsPage() {
       {/* EXPORT */}
       <section className="mt-5 card-lg p-6">
         <p className="label mb-2">Exporter ta donnée</p>
-        <p className="text-sm text-white/60 mb-4">
+        <p className="text-sm text-[#3D2F1F]/65 mb-4">
           Sauvegarde de tes {hydrated ? txs.length : "…"} transactions.
         </p>
         <div className="flex gap-2">
           <button
             onClick={exportJson}
-            className="press flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] px-4 py-3 text-sm font-medium"
+            className="press flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-[#3D2F1F]/10 bg-white/65 hover:bg-white/75 px-4 py-3 text-sm font-medium"
           >
             <Download size={15} strokeWidth={2} />
             JSON
           </button>
           <button
             onClick={exportCsv}
-            className="press flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.07] px-4 py-3 text-sm font-medium"
+            className="press flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-[#3D2F1F]/10 bg-white/65 hover:bg-white/75 px-4 py-3 text-sm font-medium"
           >
             <Download size={15} strokeWidth={2} />
             CSV
@@ -216,16 +216,16 @@ export default function SettingsPage() {
       {/* DANGER */}
       <section className="mt-5 card-lg p-6">
         <p className="label mb-2">Zone sensible</p>
-        <p className="text-sm text-white/60 mb-4">
+        <p className="text-sm text-[#3D2F1F]/65 mb-4">
           Efface toutes les transactions locales.
         </p>
         <button
           onClick={clearAll}
           className="press inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold"
           style={{
-            background: "rgba(255,107,107,0.12)",
-            color: "#FF6B6B",
-            border: "1px solid rgba(255,107,107,0.25)",
+            background: "rgba(196,122,107,0.12)",
+            color: "#C47A6B",
+            border: "1px solid rgba(196,122,107,0.25)",
           }}
         >
           <Trash2 size={14} strokeWidth={2.2} />

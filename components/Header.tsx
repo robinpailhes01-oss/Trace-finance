@@ -20,15 +20,15 @@ export function Header({
         <div
           className="h-11 w-11 rounded-full grid place-items-center text-white shrink-0"
           style={{
-            background: "linear-gradient(135deg, #4ECCA3 0%, #2A9D8F 100%)",
+            background: "linear-gradient(135deg, #7B9B75 0%, #5F7D5A 100%)",
             boxShadow:
-              "0 8px 22px -8px rgba(78,204,163,0.55), inset 0 1px 0 rgba(255,255,255,0.2)",
+              "0 8px 22px -8px rgba(123,155,117,0.55), inset 0 1px 0 rgba(255,255,255,0.2)",
           }}
         >
           <Sparkles size={18} strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="text-[12px] text-white/55 truncate">Bonjour 👋</p>
+          <p className="text-[12px] text-[#3D2F1F]/55 truncate">Bonjour 👋</p>
           <h2 className="text-sm font-medium leading-tight truncate">{name}</h2>
         </div>
       </div>
@@ -38,7 +38,7 @@ export function Header({
         <Link
           href="/settings"
           aria-label="Réglages"
-          className="relative h-10 w-10 rounded-full grid place-items-center border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] press text-white/75"
+          className="relative h-10 w-10 rounded-full grid place-items-center border border-[#3D2F1F]/10 bg-white/55 hover:bg-white/70 press text-[#3D2F1F]/75"
         >
           <Settings size={16} strokeWidth={1.8} className="icon-muted" />
         </Link>

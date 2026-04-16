@@ -104,7 +104,7 @@ export default function HomePage() {
             <h3 className="label">Transactions récentes</h3>
             <Link
               href="/history"
-              className="text-xs text-white/55 inline-flex items-center gap-1 hover:text-white press"
+              className="text-xs text-[#3D2F1F]/55 inline-flex items-center gap-1 hover:text-[#3D2F1F] press"
             >
               Tout voir <ArrowRight size={11} />
             </Link>

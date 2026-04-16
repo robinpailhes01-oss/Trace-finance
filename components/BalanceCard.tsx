@@ -97,8 +97,8 @@ function FlashStat({
         style={{
           textShadow:
             tone === "green"
-              ? "0 0 20px rgba(78,204,163,0.3)"
-              : "0 0 20px rgba(255,107,107,0.25)",
+              ? "0 0 20px rgba(123,155,117,0.3)"
+              : "0 0 20px rgba(196,122,107,0.25)",
         }}
       >
         {tone === "green" ? "+" : "−"}

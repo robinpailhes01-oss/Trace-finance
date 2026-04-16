@@ -20,7 +20,7 @@ export function TransactionList({
 }) {
   if (txs.length === 0) {
     return (
-      <div className="card p-10 text-center text-white/50 text-sm">
+      <div className="card p-10 text-center text-[#3D2F1F]/55 text-sm">
         Aucune transaction pour l&apos;instant.
       </div>
     );
@@ -47,7 +47,7 @@ function Row({
   const cat = findCategory(tx.account, tx.category);
   const x = useMotionValue(0);
   const bgOpacity = useTransform(x, [-100, -40, 0], [0.55, 0.25, 0]);
-  const bg = useTransform(bgOpacity, (v) => `rgba(255,107,107,${v})`);
+  const bg = useTransform(bgOpacity, (v) => `rgba(196,122,107,${v})`);
 
   return (
     <motion.li
@@ -62,7 +62,7 @@ function Row({
         className="absolute inset-0 rounded-2xl flex items-center justify-end pr-5"
         style={{ background: bg }}
       >
-        <Trash2 size={16} className="text-[#FF6B6B]" />
+        <Trash2 size={16} className="text-[#C47A6B]" />
       </motion.div>
 
       <motion.div
@@ -83,17 +83,17 @@ function Row({
         <div
           className={`h-9 w-9 shrink-0 rounded-full grid place-items-center text-base ${
             tx.type === "income"
-              ? "bg-[rgba(78,204,163,0.12)] text-[#4ECCA3]"
-              : "bg-[rgba(255,107,107,0.12)] text-[#FF6B6B]"
+              ? "bg-[rgba(123,155,117,0.12)] text-[#7B9B75]"
+              : "bg-[rgba(196,122,107,0.12)] text-[#C47A6B]"
           }`}
         >
           {cat?.emoji ?? "💸"}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[#F0EDE8] truncate">
+          <p className="text-sm font-medium text-[#3D2F1F] truncate">
             {tx.note?.length ? tx.note : cat?.label ?? "Transaction"}
           </p>
-          <p className="text-[11px] text-white/45 mt-0.5">
+          <p className="text-[11px] text-[#3D2F1F]/45 mt-0.5">
             {cat?.label} · {formatRelative(tx.date)}
           </p>
         </div>
