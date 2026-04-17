@@ -281,16 +281,17 @@ export function QuickAdd({
                     key={k}
                     type="button"
                     onClick={() => press(k)}
-                    className="press rounded-xl py-2.5 text-base font-medium text-[#3D2F1F]"
+                    className="press rounded-xl py-2.5 text-lg font-semibold active:scale-95 transition-transform"
                     style={{
-                      background: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.06)",
+                      background: "rgba(255,255,255,0.12)",
+                      border: "1px solid rgba(255,255,255,0.18)",
+                      color: "#F0EDE8",
                     }}
                   >
                     {k === "back" ? (
                       <Delete
                         size={16}
-                        className="mx-auto text-[#3D2F1F]/55"
+                        className="mx-auto text-[#F0EDE8]/70"
                       />
                     ) : (
                       k

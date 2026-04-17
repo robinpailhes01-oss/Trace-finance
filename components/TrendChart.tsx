@@ -90,7 +90,7 @@ export function TrendChart({ txs }: { txs: Transaction[] }) {
 
       {/* Re-mount sparkline on period change so the draw animation re-plays */}
       <div className="pb-3">
-        <Sparkline key={period} txs={txs} days={days} height={180} />
+        <Sparkline key={`${period}-${txs.length}`} txs={txs} days={days} height={180} />
       </div>
     </div>
   );

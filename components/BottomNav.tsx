@@ -17,9 +17,7 @@ export function BottomNav() {
     <nav
       className="fixed bottom-0 inset-x-0 z-30 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2"
       style={{
-        background: "rgba(245,235,221,0.78)",
-        backdropFilter: "blur(24px) saturate(160%)",
-        WebkitBackdropFilter: "blur(24px) saturate(160%)",
+        background: "#F0E4CE",
         borderTop: "1px solid rgba(61,47,31,0.08)",
       }}
     >
