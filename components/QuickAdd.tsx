@@ -109,17 +109,14 @@ export function QuickAdd({
             className="fixed inset-x-0 bottom-0 z-[60] mx-auto max-w-xl rounded-t-[28px] sm:bottom-6 sm:rounded-[28px] flex flex-col"
             style={{
               maxHeight: "94vh",
-              background: "rgba(18,18,26,0.96)",
-              backdropFilter: "blur(28px) saturate(180%)",
-              WebkitBackdropFilter: "blur(28px) saturate(180%)",
+              background: "#1a1a24",
               border: "1px solid rgba(255,255,255,0.08)",
-              boxShadow:
-                "0 -8px 48px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05)",
+              boxShadow: "0 -8px 48px rgba(0,0,0,0.5)",
             }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
-            transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
           >
             {/* Close */}
             <button

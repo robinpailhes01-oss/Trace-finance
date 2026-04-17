@@ -32,20 +32,32 @@ export function BalanceCard({
 
         <div className="mt-8 flex items-center gap-3 w-full max-w-sm">
           <button
+            type="button"
             onClick={onAddIncome}
-            className="btn-glass btn-glass-green flex-1 inline-flex items-center justify-center gap-2.5 py-3 text-sm"
+            className="flex-1 inline-flex items-center justify-center gap-2.5 min-h-[48px] py-3 text-sm font-medium rounded-full active:scale-95 transition-transform duration-150"
+            style={{
+              background: "rgba(123,155,117,0.18)",
+              border: "1px solid rgba(123,155,117,0.3)",
+              color: "#3D2F1F",
+            }}
           >
-            <span className="icon-circle-green h-6 w-6 grid place-items-center rounded-full">
-              <ArrowDownLeft size={12} strokeWidth={2.6} />
+            <span className="icon-circle-green h-7 w-7 grid place-items-center rounded-full">
+              <ArrowDownLeft size={14} strokeWidth={2.4} />
             </span>
             Recevoir
           </button>
           <button
+            type="button"
             onClick={onAddExpense}
-            className="btn-glass btn-glass-red flex-1 inline-flex items-center justify-center gap-2.5 py-3 text-sm"
+            className="flex-1 inline-flex items-center justify-center gap-2.5 min-h-[48px] py-3 text-sm font-medium rounded-full active:scale-95 transition-transform duration-150"
+            style={{
+              background: "rgba(196,122,107,0.18)",
+              border: "1px solid rgba(196,122,107,0.3)",
+              color: "#3D2F1F",
+            }}
           >
-            <span className="icon-circle-red h-6 w-6 grid place-items-center rounded-full">
-              <ArrowUpRight size={12} strokeWidth={2.6} />
+            <span className="icon-circle-red h-7 w-7 grid place-items-center rounded-full">
+              <ArrowUpRight size={14} strokeWidth={2.4} />
             </span>
             Dépenser
           </button>
