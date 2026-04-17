@@ -92,18 +92,19 @@ export function QuickAdd({
     : "rgba(196,122,107,0.4)";
 
   return (
+    <>
+    {/* Backdrop — regular div, unmounts instantly when open=false */}
+    {open && (
+      <div
+        className="fixed inset-0 z-[55] bg-black/60"
+        onClick={onClose}
+      />
+    )}
+
     <AnimatePresence>
       {open && (
-        <>
           <motion.div
-            className="fixed inset-0 z-[55] bg-black/70 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={onClose}
-          />
-          <motion.div
+            key="quickadd-modal"
             role="dialog"
             aria-modal="true"
             className="fixed inset-x-0 bottom-0 z-[60] mx-auto max-w-xl rounded-t-[28px] sm:bottom-6 sm:rounded-[28px] flex flex-col"
@@ -320,8 +321,8 @@ export function QuickAdd({
               </button>
             </div>
           </motion.div>
-        </>
       )}
     </AnimatePresence>
+    </>
   );
 }
