@@ -34,6 +34,7 @@ export const PERSO_CATEGORIES: Category[] = [
   { key: "outings", label: "Sorties", emoji: "🎉", type: "expense" },
   { key: "leisure", label: "Loisirs", emoji: "🎮", type: "expense" },
   { key: "sport", label: "Sport", emoji: "🏋️", type: "expense" },
+  { key: "healthy_food", label: "Healthy Food", emoji: "🥗", type: "expense" },
   { key: "health", label: "Santé", emoji: "💊", type: "expense" },
   { key: "care", label: "Soin", emoji: "💆", type: "expense" },
   { key: "buys_pro", label: "Achats Pro", emoji: "🛍️", type: "expense" },
