@@ -62,13 +62,16 @@ body {
     rgba(155, 174, 148, 0.2) 0%,
     transparent 70%
   );
-  z-index: 0;
+  z-index: -1;
 }
 
-main,
+main {
+  position: relative;
+}
+
 nav {
   position: relative;
-  z-index: 1;
+  z-index: 30;
 }
 
 main {
