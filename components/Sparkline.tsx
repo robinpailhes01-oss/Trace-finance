@@ -11,6 +11,11 @@ interface PointMeta {
   value: number;
 }
 
+// Local YYYY-MM-DD (avoids UTC timezone shift that makes dates off by 1 day)
+function localIso(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export function Sparkline({
   txs,
   days = 30,
@@ -29,16 +34,15 @@ export function Sparkline({
     for (let i = 0; i < days; i++) {
       const d = new Date(now);
       d.setDate(d.getDate() - (days - 1 - i));
-      const iso = d.toISOString().slice(0, 10);
-      labels.push(iso);
-      idx.set(iso, i);
+      const key = localIso(d);
+      labels.push(key);
+      idx.set(key, i);
     }
-    const windowStartIso = labels[0];
-    // Initial balance = sum of all tx that occurred BEFORE the window
+    const windowStart = labels[0];
     let initialBalance = 0;
     txs.forEach((t) => {
-      const k = t.date.slice(0, 10);
-      if (k < windowStartIso) {
+      const k = localIso(new Date(t.date));
+      if (k < windowStart) {
         initialBalance += t.type === "income" ? t.amount : -t.amount;
       } else if (idx.has(k)) {
         const i = idx.get(k)!;
