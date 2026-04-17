@@ -38,7 +38,6 @@ export function QuickAdd({
   const [note, setNote] = useState("");
   const [date, setDate] = useState(() => toLocalDateInput(new Date()));
 
-  // Reset every time the sheet opens — and sync to the requested presetType
   useEffect(() => {
     if (open) {
       setType(presetType);
@@ -88,9 +87,6 @@ export function QuickAdd({
 
   const isIncome = type === "income";
   const accent = isIncome ? "#7B9B75" : "#C47A6B";
-  const accentSoft = isIncome
-    ? "rgba(123,155,117,0.15)"
-    : "rgba(196,122,107,0.15)";
   const accentBorder = isIncome
     ? "rgba(123,155,117,0.4)"
     : "rgba(196,122,107,0.4)";
@@ -112,7 +108,7 @@ export function QuickAdd({
             aria-modal="true"
             className="fixed inset-x-0 bottom-0 z-[60] mx-auto max-w-xl rounded-t-[28px] sm:bottom-6 sm:rounded-[28px] flex flex-col"
             style={{
-              maxHeight: "92vh",
+              maxHeight: "94vh",
               background: "rgba(18,18,26,0.96)",
               backdropFilter: "blur(28px) saturate(180%)",
               WebkitBackdropFilter: "blur(28px) saturate(180%)",
@@ -125,7 +121,7 @@ export function QuickAdd({
             exit={{ y: "100%" }}
             transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
           >
-            {/* Absolute close button — top right */}
+            {/* Close */}
             <button
               onClick={onClose}
               aria-label="Fermer"
@@ -139,14 +135,14 @@ export function QuickAdd({
               <X size={16} strokeWidth={2.4} />
             </button>
 
-            {/* Scrollable content — flex-1 + min-h-0 so the footer stays visible */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-6 sm:px-7 pt-6 pb-3">
-              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/15" />
+            {/* Scrollable top: toggle, amount, categories, date, note */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-5 pt-5 pb-2">
+              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15" />
 
-              {/* Toggle Recevoir / Dépenser */}
+              {/* Toggle */}
               <div className="flex justify-center">
                 <div
-                  className="inline-flex rounded-full p-1 text-xs"
+                  className="inline-flex rounded-full p-0.5 text-xs"
                   style={{
                     background: "rgba(255,255,255,0.04)",
                     border: "1px solid rgba(255,255,255,0.08)",
@@ -163,7 +159,7 @@ export function QuickAdd({
                           setType(t);
                           setCategory("");
                         }}
-                        className="relative px-5 py-2 rounded-full transition-colors duration-200"
+                        className="relative px-4 py-1.5 rounded-full transition-colors duration-200"
                         style={{
                           color: active ? "#F5EBDD" : "rgba(255,255,255,0.55)",
                         }}
@@ -189,22 +185,14 @@ export function QuickAdd({
               </div>
 
               {/* Amount */}
-              <div className="mt-7 text-center">
-                <p className="label">Montant</p>
+              <div className="mt-3 text-center">
                 <motion.p
                   key={type}
                   initial={{ opacity: 0.6, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                  className="amount mt-3 text-6xl sm:text-7xl tabular-nums"
-                  style={{
-                    color: accent,
-                    textShadow: `0 0 32px ${
-                      isIncome
-                        ? "rgba(123,155,117,0.35)"
-                        : "rgba(196,122,107,0.3)"
-                    }`,
-                  }}
+                  className="amount text-5xl tabular-nums"
+                  style={{ color: accent }}
                 >
                   {isIncome ? "+" : "−"}
                   {amount} €
@@ -212,9 +200,9 @@ export function QuickAdd({
               </div>
 
               {/* Categories */}
-              <div className="mt-7">
-                <p className="label mb-2">Catégorie</p>
-                <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+              <div className="mt-3">
+                <p className="label mb-1.5">Catégorie</p>
+                <div className="flex gap-1.5 overflow-x-auto pb-1.5 -mx-1 px-1">
                   {cats.map((c) => {
                     const active = category === c.key;
                     return (
@@ -222,17 +210,19 @@ export function QuickAdd({
                         key={c.key}
                         type="button"
                         onClick={() => setCategory(c.key)}
-                        className="press shrink-0 rounded-full px-4 py-2 text-sm transition duration-200"
+                        className="press shrink-0 rounded-full px-3 py-1.5 text-xs transition duration-200"
                         style={{
-                          background: active ? accent : "rgba(255,255,255,0.04)",
-                          color: active ? "#F5EBDD" : "#3D2F1F",
+                          background: active
+                            ? accent
+                            : "rgba(255,255,255,0.04)",
+                          color: active ? "#F5EBDD" : "#F0EDE8",
                           border: `1px solid ${
                             active ? accent : "rgba(255,255,255,0.08)"
                           }`,
                           fontWeight: active ? 600 : 500,
                         }}
                       >
-                        <span className="mr-1.5">{c.emoji}</span>
+                        <span className="mr-1">{c.emoji}</span>
                         {c.label}
                       </button>
                     );
@@ -240,24 +230,21 @@ export function QuickAdd({
                 </div>
               </div>
 
-              {/* Date (above so past months are obvious) */}
-              <div className="mt-6">
-                <p className="label mb-2">
-                  Date · tape pour changer (mois précédents OK)
-                </p>
-                <label className="relative press block">
-                  <div className="w-full inline-flex items-center gap-2.5 rounded-2xl bg-white/70 border border-[#3D2F1F]/12 px-4 py-3 text-sm cursor-pointer text-[#3D2F1F]">
-                    <Calendar
-                      size={16}
-                      className="text-[#3D2F1F]/60"
-                      strokeWidth={1.8}
-                    />
-                    <span className="tabular-nums font-medium">
+              {/* Date + Note — compact row */}
+              <div className="mt-2 grid grid-cols-[1fr_auto] gap-1.5">
+                <input
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Description"
+                  className="rounded-xl bg-white/65 border border-[#3D2F1F]/10 px-3 py-2 text-xs placeholder:text-[#3D2F1F]/45 text-[#3D2F1F] focus:outline-none"
+                />
+                <label className="relative press">
+                  <div className="h-full inline-flex items-center gap-1.5 rounded-xl bg-white/70 border border-[#3D2F1F]/12 px-2.5 py-2 text-xs cursor-pointer text-[#3D2F1F]">
+                    <Calendar size={12} className="text-[#3D2F1F]/60" />
+                    <span className="tabular-nums">
                       {new Date(date).toLocaleDateString("fr-FR", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
+                        day: "2-digit",
+                        month: "2-digit",
                       })}
                     </span>
                   </div>
@@ -269,60 +256,57 @@ export function QuickAdd({
                   />
                 </label>
               </div>
-
-              {/* Note */}
-              <div className="mt-3">
-                <input
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="Description (optionnel)"
-                  className="w-full rounded-2xl bg-white/65 border border-[#3D2F1F]/10 px-4 py-3 text-sm placeholder:text-[#3D2F1F]/45 text-[#3D2F1F] focus:outline-none focus:border-[#7B9B75]/30"
-                />
-              </div>
-
-              {/* Keypad */}
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "back"].map(
-                  (k) => (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => press(k)}
-                      className="press rounded-2xl py-4 text-xl font-medium text-[#3D2F1F]"
-                      style={{
-                        background: "rgba(255,255,255,0.03)",
-                        border: "1px solid rgba(255,255,255,0.06)",
-                      }}
-                    >
-                      {k === "back" ? (
-                        <Delete
-                          size={17}
-                          className="mx-auto text-[#3D2F1F]/55"
-                        />
-                      ) : (
-                        k
-                      )}
-                    </button>
-                  ),
-                )}
-              </div>
             </div>
 
-            {/* Sticky submit area — always visible above safe-area */}
+            {/* Fixed bottom: keypad + validate */}
             <div
-              className="px-6 sm:px-7 pt-3"
+              className="shrink-0 px-5"
               style={{
-                paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)",
-                borderTop: "1px solid rgba(255,255,255,0.05)",
-                background:
-                  "linear-gradient(180deg, rgba(18,18,26,0) 0%, rgba(18,18,26,0.9) 30%, rgba(18,18,26,0.96) 100%)",
+                paddingBottom: "calc(env(safe-area-inset-bottom) + 8px)",
               }}
             >
+              <div className="grid grid-cols-3 gap-1 mb-2">
+                {[
+                  "1",
+                  "2",
+                  "3",
+                  "4",
+                  "5",
+                  "6",
+                  "7",
+                  "8",
+                  "9",
+                  ".",
+                  "0",
+                  "back",
+                ].map((k) => (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => press(k)}
+                    className="press rounded-xl py-2.5 text-base font-medium text-[#3D2F1F]"
+                    style={{
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    {k === "back" ? (
+                      <Delete
+                        size={16}
+                        className="mx-auto text-[#3D2F1F]/55"
+                      />
+                    ) : (
+                      k
+                    )}
+                  </button>
+                ))}
+              </div>
+
               <button
                 type="button"
                 onClick={submit}
                 disabled={!valid}
-                className="press w-full rounded-full py-4 text-sm font-bold inline-flex items-center justify-center gap-2 transition duration-200"
+                className="press w-full rounded-full py-3 text-sm font-bold inline-flex items-center justify-center gap-2 transition duration-200"
                 style={{
                   background: valid ? accent : "rgba(255,255,255,0.06)",
                   color: valid ? "#F5EBDD" : "rgba(255,255,255,0.4)",
@@ -330,13 +314,6 @@ export function QuickAdd({
                   border: valid
                     ? `1px solid ${accentBorder}`
                     : "1px solid rgba(255,255,255,0.08)",
-                  boxShadow: valid
-                    ? `0 8px 28px -6px ${
-                        isIncome
-                          ? "rgba(123,155,117,0.55)"
-                          : "rgba(196,122,107,0.5)"
-                      }`
-                    : "none",
                   cursor: valid ? "pointer" : "not-allowed",
                 }}
               >
