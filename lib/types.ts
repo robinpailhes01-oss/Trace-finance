@@ -54,6 +54,8 @@ export const PRO_CATEGORIES: Category[] = [
   { key: "freelance_pro", label: "Freelance", emoji: "💻", type: "income" },
   { key: "salary_pro", label: "Salaire", emoji: "💼", type: "income" },
   { key: "investment_pro", label: "Investissement", emoji: "📈", type: "income" },
+  { key: "sea_trip", label: "Sortie en mer", emoji: "⛵", type: "income" },
+  { key: "unusual_night", label: "Nuit insolite", emoji: "🏕️", type: "income" },
   { key: "other_income_pro", label: "Autre", emoji: "✨", type: "income" },
 
   // Expense
