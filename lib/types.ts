@@ -59,6 +59,7 @@ export const PRO_CATEGORIES: Category[] = [
   { key: "other_income_pro", label: "Autre", emoji: "✨", type: "income" },
 
   // Expense
+  { key: "subscription_pro", label: "Abonnement", emoji: "🔁", type: "expense" },
   { key: "saas", label: "SaaS / Outils", emoji: "🛠️", type: "expense" },
   { key: "maintenance", label: "Entretien", emoji: "🧰", type: "expense" },
   { key: "training_pro", label: "Formation", emoji: "📚", type: "expense" },
