@@ -65,6 +65,8 @@ export const PRO_CATEGORIES: Category[] = [
   { key: "tax_pro", label: "Taxes / URSSAF", emoji: "🧾", type: "expense" },
   { key: "subcontract", label: "Sous-traitance", emoji: "👥", type: "expense" },
   { key: "travel", label: "Déplacement", emoji: "✈️", type: "expense" },
+  { key: "port", label: "Port", emoji: "⚓", type: "expense" },
+  { key: "fuel", label: "Gasoil", emoji: "⛽", type: "expense" },
   { key: "investment_exp_pro", label: "Investissement", emoji: "📈", type: "expense" },
   { key: "savings_pro", label: "Épargne", emoji: "🏦", type: "expense" },
   { key: "other_expense_pro", label: "Autres", emoji: "✨", type: "expense" },
