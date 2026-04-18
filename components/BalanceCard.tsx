@@ -10,12 +10,14 @@ export function BalanceCard({
   balance,
   income,
   expense,
+  transfers = 0,
   onAddIncome,
   onAddExpense,
 }: {
   balance: number;
   income: number;
   expense: number;
+  transfers?: number;
   onAddIncome: () => void;
   onAddExpense: () => void;
 }) {
@@ -67,6 +69,11 @@ export function BalanceCard({
           <FlashStat label="Revenus" value={income} tone="green" />
           <FlashStat label="Dépenses" value={expense} tone="red" />
         </div>
+        {transfers > 0 && (
+          <div className="mt-3 w-full">
+            <FlashStat label="Épargne / Invest" value={transfers} tone="gold" />
+          </div>
+        )}
       </div>
     </section>
   );
@@ -79,7 +86,7 @@ function FlashStat({
 }: {
   label: string;
   value: number;
-  tone: "green" | "red";
+  tone: "green" | "red" | "gold";
 }) {
   const prev = useRef(value);
   const [flash, setFlash] = useState(false);
@@ -96,24 +103,19 @@ function FlashStat({
   return (
     <div
       className={`stat-card ${
-        tone === "green" ? "stat-card-green" : "stat-card-red"
+        tone === "green" ? "stat-card-green" : tone === "red" ? "stat-card-red" : ""
       } p-4 text-left ${
-        flash ? (tone === "green" ? "flash-green" : "flash-red") : ""
+        flash ? (tone === "green" ? "flash-green" : tone === "red" ? "flash-red" : "") : ""
       }`}
     >
       <p className="label">{label}</p>
       <p
-        className={`amount mt-2 text-2xl tabular-nums ${
-          tone === "green" ? "text-positive" : "text-negative"
-        }`}
+        className="amount mt-2 text-2xl tabular-nums"
         style={{
-          textShadow:
-            tone === "green"
-              ? "0 0 20px rgba(123,155,117,0.3)"
-              : "0 0 20px rgba(196,122,107,0.25)",
+          color: tone === "green" ? "var(--c-sage-deep)" : tone === "red" ? "var(--c-terra-deep)" : "#B89855",
         }}
       >
-        {tone === "green" ? "+" : "−"}
+        {tone === "green" ? "+" : tone === "gold" ? "" : "−"}
         {eur(value).replace("€", "")}€
       </p>
     </div>

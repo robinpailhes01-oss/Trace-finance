@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, TrendingDown, TrendingUp, Minus, Pencil, Target } from "lucide-react";
+import { ArrowLeft, TrendingDown, TrendingUp, Minus, Pencil, Target, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAccount, useTransactions } from "@/lib/store";
 import { findCategory, isTransferCategory, type Transaction } from "@/lib/types";
 import { eur } from "@/lib/format";
@@ -53,13 +53,19 @@ export default function StatsPage() {
 
   const [editingGoal, setEditingGoal] = useState(false);
   const [goalInput, setGoalInput] = useState("");
+  const [monthOffset, setMonthOffset] = useState(0);
 
   const accountTxs = useMemo(
     () => txs.filter((t) => t.account === account),
     [txs, account],
   );
 
-  const now = useMemo(() => new Date(), []);
+  const now = useMemo(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + monthOffset);
+    return d;
+  }, [monthOffset]);
+  const isCurrentMonth = monthOffset === 0;
   const thisStart = useMemo(() => startOfMonth(now), [now]);
   const thisEnd = useMemo(() => endOfMonth(now), [now]);
   const lastStart = useMemo(
@@ -197,10 +203,32 @@ export default function StatsPage() {
         <AccountSwitcher value={account} onChange={setAccount} />
       </header>
 
-      {/* Résumé du mois en cours */}
-      <section className="mt-6 card-lg p-6">
+      {/* Month navigator */}
+      <div className="mt-6 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => setMonthOffset((o) => o - 1)}
+          className="h-10 w-10 grid place-items-center rounded-full border border-[#3D2F1F]/10 bg-white/60 hover:bg-white/70 press text-[#3D2F1F]/70"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <p className="text-sm font-semibold capitalize text-[#3D2F1F]">
+          {currentMonthName}
+        </p>
+        <button
+          type="button"
+          onClick={() => setMonthOffset((o) => Math.min(0, o + 1))}
+          disabled={isCurrentMonth}
+          className="h-10 w-10 grid place-items-center rounded-full border border-[#3D2F1F]/10 bg-white/60 hover:bg-white/70 press text-[#3D2F1F]/70 disabled:opacity-30"
+        >
+          <ChevronRight size={18} />
+        </button>
+      </div>
+
+      {/* Résumé */}
+      <section className="mt-4 card-lg p-6">
         <div className="flex items-baseline justify-between mb-4">
-          <p className="label">Résumé · {currentMonthName}</p>
+          <p className="label">Résumé</p>
         </div>
 
         <div className="flex items-center gap-5">
@@ -227,7 +255,7 @@ export default function StatsPage() {
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-3 gap-3">
+        <div className="mt-5 grid grid-cols-2 gap-3">
           <SummaryCell
             label="Revenus"
             value={cur.income}
@@ -239,7 +267,12 @@ export default function StatsPage() {
             color="#C47A6B"
           />
           <SummaryCell
-            label="Épargne"
+            label="Épargne / Invest"
+            value={cur.transfers}
+            color="#B89855"
+          />
+          <SummaryCell
+            label="Reste disponible"
             value={Math.max(0, savings)}
             color="#3D2F1F"
             amountSign="+"

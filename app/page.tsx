@@ -52,7 +52,7 @@ export default function HomePage() {
     [txs, account],
   );
 
-  const { income, expense, balance } = useMemo(
+  const { income, expense, transfers, balance } = useMemo(
     () => computeTotals(filtered),
     [filtered],
   );
@@ -81,6 +81,7 @@ export default function HomePage() {
             balance={hydrated ? balance : 0}
             income={hydrated ? income : 0}
             expense={hydrated ? expense : 0}
+            transfers={hydrated ? transfers : 0}
             onAddIncome={() => openAdd("income")}
             onAddExpense={() => openAdd("expense")}
           />
