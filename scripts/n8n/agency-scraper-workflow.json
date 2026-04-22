@@ -1,0 +1,364 @@
+{
+  "name": "Scraping agences digitales Hérault & Gard",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a1111111-1111-1111-1111-111111111111",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-1600, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const queries = [\n  \"agence digitale Montpellier\",\n  \"agence SEO Hérault\",\n  \"agence web Nîmes\",\n  \"agence communication Montpellier\",\n  \"création site web Hérault\",\n  \"agence marketing digital Gard\",\n  \"agence réseaux sociaux Montpellier\",\n  \"agence SEO Nîmes\",\n  \"agence web Béziers\",\n  \"agence digitale Sète\"\n];\n\nreturn queries.map(q => ({ json: { query: q } }));"
+      },
+      "id": "a2222222-2222-2222-2222-222222222222",
+      "name": "Queries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-1400, 0]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a3333333-3333-3333-3333-333333333333",
+      "name": "Loop Over Queries",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [-1200, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.apify.com/v2/acts/nwua9Gu5YrADL7ZDj/runs?token={{$credentials.apifyApiToken}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"searchStringsArray\": [\"{{$json.query}}\"],\n  \"locationQuery\": \"France\",\n  \"maxCrawledPlacesPerSearch\": 40,\n  \"language\": \"fr\",\n  \"exportPlaceUrls\": false,\n  \"includeWebResults\": false\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "a4444444-4444-4444-4444-444444444444",
+      "name": "Apify - Run Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-1000, 0]
+    },
+    {
+      "parameters": {
+        "amount": 45,
+        "unit": "seconds"
+      },
+      "id": "a5555555-5555-5555-5555-555555555555",
+      "name": "Wait 45s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [-800, 0],
+      "webhookId": "wait-45s-scraper"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.apify.com/v2/acts/nwua9Gu5YrADL7ZDj/runs/last/dataset/items?token={{$credentials.apifyApiToken}}&format=json",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "a6666666-6666-6666-6666-666666666666",
+      "name": "Apify - Get Results",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-600, 0]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a7777777-7777-7777-7777-777777777777",
+      "name": "Loop Over Leads",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [-400, 0]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "prospects_agences",
+        "returnAll": true,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "place_id",
+              "condition": "eq",
+              "keyValue": "={{$json.placeId}}"
+            }
+          ]
+        },
+        "alwaysOutputData": true
+      },
+      "id": "a8888888-8888-8888-8888-888888888888",
+      "name": "Supabase - Check Duplicate",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [-200, 0],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-duplicate",
+              "leftValue": "={{$json.id}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a9999999-9999-9999-9999-999999999999",
+      "name": "IF Duplicate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-website",
+              "leftValue": "={{$('Loop Over Leads').item.json.website}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b1111111-1111-1111-1111-111111111111",
+      "name": "IF Website",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [200, 100]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$('Loop Over Leads').item.json.website}}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "timeout": 10000,
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "b2222222-2222-2222-2222-222222222222",
+      "name": "Fetch Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [400, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 300,\n  \"system\": \"Tu es un extracteur de données. Analyse le HTML d'un site web et retourne UNIQUEMENT un objet JSON valide, sans aucun texte autour.\\nFormat attendu :\\n{\\\"email\\\": \\\"adresse@exemple.fr\\\", \\\"activite\\\": \\\"description courte en 5 mots max\\\"}\\nSi aucun email n'est trouvé, retourne : {\\\"email\\\": null, \\\"activite\\\": \\\"agence digitale\\\"}\\nNe retourne rien d'autre que ce JSON.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify('Voici le HTML du site ' + $('Loop Over Leads').item.json.website + ' :\\n\\n' + (($json.data || '') + '').substring(0, 8000)) }}\n    }\n  ]\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "b3333333-3333-3333-3333-333333333333",
+      "name": "Claude - Extract Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [600, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json.content[0].text;\nconst cleaned = raw.replace(/```json|```/g, '').trim();\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  parsed = { email: null, activite: 'agence digitale' };\n}\nreturn [{\n  json: {\n    email: parsed.email || null,\n    activite: parsed.activite || 'agence digitale'\n  }\n}];"
+      },
+      "id": "b4444444-4444-4444-4444-444444444444",
+      "name": "Parse Claude Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-email",
+              "name": "email",
+              "value": "={{ null }}",
+              "type": "string"
+            },
+            {
+              "id": "set-activite",
+              "name": "activite",
+              "value": "agence digitale",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b5555555-5555-5555-5555-555555555555",
+      "name": "Set Defaults",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [400, 200]
+    },
+    {
+      "parameters": {
+        "numberInputs": 2
+      },
+      "id": "b6666666-6666-6666-6666-666666666666",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1000, 100]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "tableId": "prospects_agences",
+        "fieldsUi": {
+          "fieldValues": [
+            { "fieldId": "place_id",     "fieldValue": "={{$('Loop Over Leads').item.json.placeId}}" },
+            { "fieldId": "nom",          "fieldValue": "={{$('Loop Over Leads').item.json.title}}" },
+            { "fieldId": "adresse",      "fieldValue": "={{$('Loop Over Leads').item.json.address}}" },
+            { "fieldId": "ville",        "fieldValue": "={{$('Loop Over Leads').item.json.city}}" },
+            { "fieldId": "telephone",    "fieldValue": "={{$('Loop Over Leads').item.json.phone}}" },
+            { "fieldId": "site_web",     "fieldValue": "={{$('Loop Over Leads').item.json.website}}" },
+            { "fieldId": "email",        "fieldValue": "={{$json.email}}" },
+            { "fieldId": "activite",     "fieldValue": "={{$json.activite}}" },
+            { "fieldId": "email_envoye", "fieldValue": "false" }
+          ]
+        }
+      },
+      "id": "b7777777-7777-7777-7777-777777777777",
+      "name": "Supabase - Insert Lead",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1200, 100]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [[{ "node": "Queries", "type": "main", "index": 0 }]]
+    },
+    "Queries": {
+      "main": [[{ "node": "Loop Over Queries", "type": "main", "index": 0 }]]
+    },
+    "Loop Over Queries": {
+      "main": [
+        [],
+        [{ "node": "Apify - Run Scraper", "type": "main", "index": 0 }]
+      ]
+    },
+    "Apify - Run Scraper": {
+      "main": [[{ "node": "Wait 45s", "type": "main", "index": 0 }]]
+    },
+    "Wait 45s": {
+      "main": [[{ "node": "Apify - Get Results", "type": "main", "index": 0 }]]
+    },
+    "Apify - Get Results": {
+      "main": [[{ "node": "Loop Over Leads", "type": "main", "index": 0 }]]
+    },
+    "Loop Over Leads": {
+      "main": [
+        [{ "node": "Loop Over Queries", "type": "main", "index": 0 }],
+        [{ "node": "Supabase - Check Duplicate", "type": "main", "index": 0 }]
+      ]
+    },
+    "Supabase - Check Duplicate": {
+      "main": [[{ "node": "IF Duplicate", "type": "main", "index": 0 }]]
+    },
+    "IF Duplicate": {
+      "main": [
+        [{ "node": "Loop Over Leads", "type": "main", "index": 0 }],
+        [{ "node": "IF Website", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF Website": {
+      "main": [
+        [{ "node": "Fetch Website", "type": "main", "index": 0 }],
+        [{ "node": "Set Defaults", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Website": {
+      "main": [[{ "node": "Claude - Extract Email", "type": "main", "index": 0 }]]
+    },
+    "Claude - Extract Email": {
+      "main": [[{ "node": "Parse Claude Response", "type": "main", "index": 0 }]]
+    },
+    "Parse Claude Response": {
+      "main": [[{ "node": "Merge", "type": "main", "index": 0 }]]
+    },
+    "Set Defaults": {
+      "main": [[{ "node": "Merge", "type": "main", "index": 1 }]]
+    },
+    "Merge": {
+      "main": [[{ "node": "Supabase - Insert Lead", "type": "main", "index": 0 }]]
+    },
+    "Supabase - Insert Lead": {
+      "main": [[{ "node": "Loop Over Leads", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
