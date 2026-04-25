@@ -44,6 +44,7 @@ export const PERSO_CATEGORIES: Category[] = [
   { key: "savings", label: "Épargne", emoji: "🏦", type: "expense" },
   { key: "training", label: "Formation", emoji: "📚", type: "expense" },
   { key: "clothes", label: "Vêtements", emoji: "👕", type: "expense" },
+  { key: "travel_perso", label: "Voyages", emoji: "✈️", type: "expense" },
   { key: "tax_fine", label: "Taxe/Amende", emoji: "🧾", type: "expense" },
   { key: "other_expense", label: "Autres", emoji: "✨", type: "expense" },
 ];
