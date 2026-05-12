@@ -73,6 +73,7 @@ export const PRO_CATEGORIES: Category[] = [
   { key: "subcontract", label: "Sous-traitance", emoji: "👥", type: "expense" },
   { key: "travel", label: "Déplacement", emoji: "✈️", type: "expense" },
   { key: "port", label: "Port", emoji: "⚓", type: "expense" },
+  { key: "insurance_pro", label: "Assurance", emoji: "🛡️", type: "expense" },
   { key: "fuel", label: "Gasoil", emoji: "⛽", type: "expense" },
   { key: "investment_exp_pro", label: "Investissement", emoji: "📈", type: "expense" },
   { key: "savings_pro", label: "Épargne", emoji: "🏦", type: "expense" },
