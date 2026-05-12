@@ -12,6 +12,7 @@ import { TrendChart } from "@/components/TrendChart";
 import { CategoryBreakdown } from "@/components/CategoryBreakdown";
 import { Toast } from "@/components/Toast";
 import { useAccount, useTransactions } from "@/lib/store";
+import { eur } from "@/lib/format";
 import { computeTotals, type TxType } from "@/lib/types";
 
 const fadeUp = {
@@ -57,6 +58,16 @@ export default function HomePage() {
     [filtered],
   );
 
+  // Patrimoine global = perso + pro combined (balance + transfers = net worth)
+  const patrimoine = useMemo(() => {
+    const all = computeTotals(txs);
+    return {
+      total: all.balance + all.transfers,
+      available: all.balance,
+      invested: all.transfers,
+    };
+  }, [txs]);
+
   const openAdd = (t: TxType) => {
     setPresetType(t);
     setOpen(true);
@@ -86,6 +97,30 @@ export default function HomePage() {
             onAddExpense={() => openAdd("expense")}
           />
         </motion.div>
+
+        {/* Patrimoine global */}
+        {hydrated && (
+          <motion.div variants={fadeUp} className="mt-5 card-lg p-5">
+            <p className="label mb-3">Patrimoine global (perso + pro)</p>
+            <p className="amount text-3xl tabular-nums">
+              {eur(patrimoine.total)}
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="rounded-xl border border-[#3D2F1F]/8 bg-white/50 p-3">
+                <p className="text-[10px] uppercase tracking-wider text-[#3D2F1F]/50">Disponible</p>
+                <p className="amount mt-1 text-lg tabular-nums" style={{ color: "#5F7D5A" }}>
+                  {eur(patrimoine.available)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-[#3D2F1F]/8 bg-white/50 p-3">
+                <p className="text-[10px] uppercase tracking-wider text-[#3D2F1F]/50">Épargne / Invest</p>
+                <p className="amount mt-1 text-lg tabular-nums" style={{ color: "#B89855" }}>
+                  {eur(patrimoine.invested)}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         <motion.div variants={fadeUp} className="mt-5">
           <TrendChart txs={filtered} />
