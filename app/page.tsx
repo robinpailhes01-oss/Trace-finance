@@ -14,6 +14,7 @@ import { Toast } from "@/components/Toast";
 import { useAccount, useTransactions } from "@/lib/store";
 import { eur } from "@/lib/format";
 import { computeTotals, type TxType } from "@/lib/types";
+import { useRecapScheduler } from "@/lib/useRecapScheduler";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20, scale: 0.98 },
@@ -28,6 +29,7 @@ const fadeUp = {
 export default function HomePage() {
   const { account, setAccount } = useAccount();
   const { txs, add, remove, hydrated } = useTransactions();
+  useRecapScheduler(txs, hydrated);
 
   const [open, setOpen] = useState(false);
   const [presetType, setPresetType] = useState<TxType>("expense");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -9,6 +9,8 @@ import {
   Trash2,
   Check,
   AlertCircle,
+  Mail,
+  Send,
 } from "lucide-react";
 import { useAccount, useTransactions } from "@/lib/store";
 import {
@@ -22,6 +24,12 @@ import {
 } from "@/lib/importExport";
 import { Toast } from "@/components/Toast";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
+import {
+  loadRecapSettings,
+  saveRecapSettings,
+  buildRecapPayload,
+  type RecapSettings,
+} from "@/lib/recap";
 
 type Mode = "merge" | "replace";
 
@@ -32,6 +40,51 @@ export default function SettingsPage() {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [mode, setMode] = useState<Mode>("merge");
   const [report, setReport] = useState<ImportReport | null>(null);
+
+  // Email recap settings
+  const [recapSettings, setRecapSettings] = useState<RecapSettings>({
+    email: "",
+    weeklyEnabled: true,
+    monthlyEnabled: true,
+  });
+  const [sendingTest, setSendingTest] = useState(false);
+
+  useEffect(() => {
+    const s = loadRecapSettings();
+    if (s) setRecapSettings(s);
+  }, []);
+
+  const saveRecap = (next: RecapSettings) => {
+    setRecapSettings(next);
+    saveRecapSettings(next);
+  };
+
+  const sendTestRecap = async (type: "weekly" | "monthly") => {
+    if (!recapSettings.email) {
+      showToast("Saisis d'abord ton adresse e-mail", "red");
+      return;
+    }
+    setSendingTest(true);
+    try {
+      const payload = buildRecapPayload(txs, account, type);
+      const res = await fetch("/api/send-recap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: recapSettings.email, payload }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast("Récap envoyé ✓");
+      } else {
+        showToast(data.error?.slice(0, 60) ?? "Erreur d'envoi", "red");
+      }
+    } catch {
+      showToast("Erreur réseau", "red");
+    } finally {
+      setSendingTest(false);
+    }
+  };
+
   const [toast, setToast] = useState<{
     open: boolean;
     message: string;
@@ -213,6 +266,97 @@ export default function SettingsPage() {
           >
             <Download size={15} strokeWidth={2} />
             CSV
+          </button>
+        </div>
+      </section>
+
+      {/* EMAIL RECAP */}
+      <section className="mt-5 card-lg p-6">
+        <div className="flex items-center gap-2 mb-2">
+          <Mail size={15} strokeWidth={2} className="text-[#3D2F1F]/70" />
+          <p className="label">Récap par e-mail</p>
+        </div>
+        <p className="text-sm text-[#3D2F1F]/65 mb-5">
+          Reçois un résumé de tes finances{" "}
+          <span className="text-[#3D2F1F]">chaque lundi</span> et{" "}
+          <span className="text-[#3D2F1F]">le 1er du mois</span> avec tes stats + 3 prises de conscience.
+        </p>
+
+        <input
+          type="email"
+          placeholder="ton@email.com"
+          value={recapSettings.email}
+          onChange={(e) => saveRecap({ ...recapSettings, email: e.target.value })}
+          className="w-full rounded-2xl border border-[#3D2F1F]/10 bg-white/60 px-4 py-3 text-sm text-[#3D2F1F] placeholder-[#3D2F1F]/35 focus:outline-none focus:border-[#3D2F1F]/25 mb-4"
+        />
+
+        <div className="flex flex-col gap-3 mb-5">
+          {(
+            [
+              { key: "weeklyEnabled", label: "Récap hebdo", desc: "Chaque lundi matin" },
+              { key: "monthlyEnabled", label: "Récap mensuel", desc: "Le 1er de chaque mois" },
+            ] as { key: keyof RecapSettings; label: string; desc: string }[]
+          ).map((item) => (
+            <label
+              key={item.key}
+              className="flex items-center justify-between rounded-2xl border border-[#3D2F1F]/10 bg-white/55 px-4 py-3 cursor-pointer"
+            >
+              <div>
+                <p className="text-sm font-medium text-[#3D2F1F]">{item.label}</p>
+                <p className="text-xs text-[#3D2F1F]/55">{item.desc}</p>
+              </div>
+              <div
+                onClick={() =>
+                  saveRecap({ ...recapSettings, [item.key]: !recapSettings[item.key] })
+                }
+                className="relative w-10 h-5.5 flex-shrink-0 cursor-pointer"
+                style={{ width: 40, height: 22 }}
+              >
+                <div
+                  style={{
+                    width: 40,
+                    height: 22,
+                    borderRadius: 11,
+                    background: recapSettings[item.key] as boolean ? "#3D2F1F" : "rgba(61,47,31,0.15)",
+                    transition: "background 0.2s",
+                    position: "relative",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: 8,
+                      background: "#fff",
+                      position: "absolute",
+                      top: 3,
+                      left: (recapSettings[item.key] as boolean) ? 21 : 3,
+                      transition: "left 0.2s",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                    }}
+                  />
+                </div>
+              </div>
+            </label>
+          ))}
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => sendTestRecap("weekly")}
+            disabled={sendingTest}
+            className="press flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-[#3D2F1F]/10 bg-white/65 hover:bg-white/75 px-3 py-2.5 text-xs font-medium disabled:opacity-50"
+          >
+            <Send size={12} strokeWidth={2} />
+            Test hebdo
+          </button>
+          <button
+            onClick={() => sendTestRecap("monthly")}
+            disabled={sendingTest}
+            className="press flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-[#3D2F1F]/10 bg-white/65 hover:bg-white/75 px-3 py-2.5 text-xs font-medium disabled:opacity-50"
+          >
+            <Send size={12} strokeWidth={2} />
+            Test mensuel
           </button>
         </div>
       </section>
