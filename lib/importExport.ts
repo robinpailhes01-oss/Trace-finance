@@ -372,14 +372,17 @@ export function toJson(txs: Transaction[]): string {
 }
 
 export function toCsv(txs: Transaction[]): string {
-  const head = ["date", "type", "amount", "category", "note", "account"];
+  const head = ["date", "type", "amount", "category", "emoji", "note", "account"];
   const lines = [head.join(",")];
   txs.forEach((t) => {
+    const cats = getCategories(t.account);
+    const cat = cats.find((c) => c.key === t.category);
     const row = [
       t.date.slice(0, 10),
       t.type,
       t.amount.toString(),
-      t.category,
+      cat?.label ?? t.category,
+      cat?.emoji ?? "",
       (t.note ?? "").replace(/"/g, '""'),
       t.account,
     ];
