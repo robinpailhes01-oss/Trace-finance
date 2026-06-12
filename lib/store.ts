@@ -5,13 +5,23 @@ import type { AccountType, Transaction } from "./types";
 
 const STORAGE_KEY = "trace-finance-v2";
 const LEGACY_KEYS = ["trace.transactions.v2", "trace.transactions.v1"];
-const ACCOUNT_KEY = "trace.account.v1";
+
+// Pro account has been removed — everything is a single "perso" wallet now.
+function migratePro(list: Transaction[]): Transaction[] {
+  return list.map((t) => (t.account === "perso" ? t : { ...t, account: "perso" }));
+}
 
 function read(): Transaction[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as Transaction[];
+    if (raw) {
+      const parsed = JSON.parse(raw) as Transaction[];
+      const migrated = migratePro(parsed);
+      // Persist the migration once so pro tx don't keep getting normalized
+      if (migrated.some((t, i) => t !== parsed[i])) write(migrated);
+      return migrated;
+    }
     // migrate from legacy keys if any
     for (const key of LEGACY_KEYS) {
       const legacy = window.localStorage.getItem(key);
@@ -19,8 +29,9 @@ function read(): Transaction[] {
         try {
           const parsed = JSON.parse(legacy);
           if (Array.isArray(parsed)) {
-            write(parsed as Transaction[]);
-            return parsed as Transaction[];
+            const migrated = migratePro(parsed as Transaction[]);
+            write(migrated);
+            return migrated;
           }
         } catch {
           // ignore
@@ -38,19 +49,11 @@ function write(txs: Transaction[]) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(txs));
 }
 
+// Pro removed — the app is now a single "perso" wallet. Kept for API
+// compatibility with existing pages.
 export function useAccount() {
-  const [account, setAccountState] = useState<AccountType>("perso");
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem(ACCOUNT_KEY) as AccountType | null;
-    if (stored === "perso" || stored === "pro") setAccountState(stored);
-  }, []);
-  const setAccount = useCallback((a: AccountType) => {
-    setAccountState(a);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(ACCOUNT_KEY, a);
-    }
-  }, []);
+  const account: AccountType = "perso";
+  const setAccount = useCallback((_a: AccountType) => {}, []);
   return { account, setAccount };
 }
 

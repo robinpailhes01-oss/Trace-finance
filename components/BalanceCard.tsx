@@ -7,6 +7,7 @@ import { eur } from "@/lib/format";
 import { useCountUp } from "@/lib/useCountUp";
 
 export function BalanceCard({
+  title = "Solde Total",
   balance,
   income,
   expense,
@@ -14,6 +15,7 @@ export function BalanceCard({
   onAddIncome,
   onAddExpense,
 }: {
+  title?: string;
   balance: number;
   income: number;
   expense: number;
@@ -26,7 +28,7 @@ export function BalanceCard({
   return (
     <section className="card-lg p-7 sm:p-9 relative overflow-hidden">
       <div className="relative flex flex-col items-center text-center">
-        <p className="label">Solde Total</p>
+        <p className="label">{title}</p>
 
         <h1 className="amount amount-hero mt-5 tabular-nums">
           {eur(animated)}

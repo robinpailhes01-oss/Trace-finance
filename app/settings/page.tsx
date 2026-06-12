@@ -23,7 +23,6 @@ import {
   type ImportReport,
 } from "@/lib/importExport";
 import { Toast } from "@/components/Toast";
-import { AccountSwitcher } from "@/components/AccountSwitcher";
 import {
   loadRecapSettings,
   saveRecapSettings,
@@ -34,7 +33,7 @@ import {
 type Mode = "merge" | "replace";
 
 export default function SettingsPage() {
-  const { account, setAccount } = useAccount();
+  const { account } = useAccount();
   const { txs, bulkAdd, replaceAll, clear, hydrated } = useTransactions();
 
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -172,7 +171,7 @@ export default function SettingsPage() {
           <ArrowLeft size={17} strokeWidth={1.8} />
         </Link>
         <h1 className="text-sm font-medium text-[#3D2F1F]">Réglages</h1>
-        <AccountSwitcher value={account} onChange={setAccount} />
+        <span className="h-10 w-10" />
       </header>
 
       {/* IMPORT */}

@@ -17,7 +17,6 @@ import {
   type TxType,
 } from "@/lib/types";
 import { eur } from "@/lib/format";
-import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { Toast } from "@/components/Toast";
 import { haptic } from "@/lib/haptic";
 
@@ -52,7 +51,7 @@ function labelFor(dayIso: string) {
 }
 
 export default function HistoryPage() {
-  const { account, setAccount } = useAccount();
+  const { account } = useAccount();
   const { txs, remove, hydrated } = useTransactions();
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
@@ -99,7 +98,7 @@ export default function HistoryPage() {
           <ArrowLeft size={17} strokeWidth={1.8} />
         </Link>
         <h1 className="text-sm font-medium text-[#3D2F1F]">Historique</h1>
-        <AccountSwitcher value={account} onChange={setAccount} />
+        <span className="h-10 w-10" />
       </header>
 
       {/* Search */}

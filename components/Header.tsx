@@ -2,18 +2,8 @@
 
 import Link from "next/link";
 import { Sparkles, Settings } from "lucide-react";
-import { AccountSwitcher } from "@/components/AccountSwitcher";
-import type { AccountType } from "@/lib/types";
 
-export function Header({
-  name = "Robin",
-  account,
-  onAccountChange,
-}: {
-  name?: string;
-  account: AccountType;
-  onAccountChange: (a: AccountType) => void;
-}) {
+export function Header({ name = "Robin" }: { name?: string }) {
   return (
     <header className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3 min-w-0">
@@ -33,16 +23,13 @@ export function Header({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <AccountSwitcher value={account} onChange={onAccountChange} />
-        <Link
-          href="/settings"
-          aria-label="Réglages"
-          className="relative h-10 w-10 rounded-full grid place-items-center border border-[#3D2F1F]/10 bg-white/55 hover:bg-white/70 press text-[#3D2F1F]/75"
-        >
-          <Settings size={16} strokeWidth={1.8} className="icon-muted" />
-        </Link>
-      </div>
+      <Link
+        href="/settings"
+        aria-label="Réglages"
+        className="relative h-10 w-10 rounded-full grid place-items-center border border-[#3D2F1F]/10 bg-white/55 hover:bg-white/70 press text-[#3D2F1F]/75"
+      >
+        <Settings size={16} strokeWidth={1.8} className="icon-muted" />
+      </Link>
     </header>
   );
 }

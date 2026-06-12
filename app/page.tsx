@@ -27,7 +27,7 @@ const fadeUp = {
 };
 
 export default function HomePage() {
-  const { account, setAccount } = useAccount();
+  const { account } = useAccount();
   const { txs, add, remove, hydrated } = useTransactions();
   useRecapScheduler(txs, hydrated);
 
@@ -55,20 +55,37 @@ export default function HomePage() {
     [txs, account],
   );
 
-  const { income, expense, transfers, balance } = useMemo(
-    () => computeTotals(filtered),
-    [filtered],
+  // This month's transactions + totals (the headline at-a-glance view)
+  const monthLabel = useMemo(
+    () =>
+      new Date().toLocaleDateString("fr-FR", {
+        month: "long",
+        year: "numeric",
+      }),
+    [],
   );
 
-  // Patrimoine global = perso + pro combined (balance + transfers = net worth)
+  const monthTxs = useMemo(() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth();
+    return filtered.filter((t) => {
+      const d = new Date(t.date);
+      return d.getFullYear() === y && d.getMonth() === m;
+    });
+  }, [filtered]);
+
+  const month = useMemo(() => computeTotals(monthTxs), [monthTxs]);
+
+  // Total balance / patrimoine across all transactions
   const patrimoine = useMemo(() => {
-    const all = computeTotals(txs);
+    const all = computeTotals(filtered);
     return {
       total: all.balance + all.transfers,
       available: all.balance,
       invested: all.transfers,
     };
-  }, [txs]);
+  }, [filtered]);
 
   const openAdd = (t: TxType) => {
     setPresetType(t);
@@ -78,7 +95,7 @@ export default function HomePage() {
   return (
     <main className="mx-auto max-w-xl px-5 pb-32 pt-8 sm:pt-12">
       <motion.div variants={fadeUp} initial="hidden" animate="show">
-        <Header account={account} onAccountChange={setAccount} />
+        <Header />
       </motion.div>
 
       <motion.div
@@ -91,22 +108,25 @@ export default function HomePage() {
       >
         <motion.div variants={fadeUp} className="mt-6">
           <BalanceCard
-            balance={hydrated ? balance : 0}
-            income={hydrated ? income : 0}
-            expense={hydrated ? expense : 0}
-            transfers={hydrated ? transfers : 0}
+            title={`Solde · ${monthLabel}`}
+            balance={hydrated ? month.balance : 0}
+            income={hydrated ? month.income : 0}
+            expense={hydrated ? month.expense : 0}
+            transfers={hydrated ? month.transfers : 0}
             onAddIncome={() => openAdd("income")}
             onAddExpense={() => openAdd("expense")}
           />
         </motion.div>
 
-        {/* Patrimoine global */}
+        {/* Patrimoine total */}
         {hydrated && (
           <motion.div variants={fadeUp} className="mt-5 card-lg p-5">
-            <p className="label mb-3">Patrimoine global (perso + pro)</p>
-            <p className="amount text-3xl tabular-nums">
-              {eur(patrimoine.total)}
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="label">Patrimoine total</p>
+              <p className="amount text-2xl tabular-nums">
+                {eur(patrimoine.total)}
+              </p>
+            </div>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <div className="rounded-xl border border-[#3D2F1F]/8 bg-white/50 p-3">
                 <p className="text-[10px] uppercase tracking-wider text-[#3D2F1F]/50">Disponible</p>

@@ -6,7 +6,6 @@ import { ArrowLeft, TrendingDown, TrendingUp, Minus, Pencil, Target, ChevronLeft
 import { useAccount, useTransactions } from "@/lib/store";
 import { findCategory, isTransferCategory, type Transaction } from "@/lib/types";
 import { eur } from "@/lib/format";
-import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { DonutSvg } from "@/components/DonutSvg";
 import { useSavingsGoal } from "@/lib/savingsGoal";
 
@@ -47,7 +46,7 @@ function monthLabel(d: Date) {
 }
 
 export default function StatsPage() {
-  const { account, setAccount } = useAccount();
+  const { account } = useAccount();
   const { txs, hydrated } = useTransactions();
   const { goal, setGoal, hydrated: goalHydrated } = useSavingsGoal();
 
@@ -200,7 +199,7 @@ export default function StatsPage() {
           <ArrowLeft size={17} strokeWidth={1.8} />
         </Link>
         <h1 className="text-sm font-medium text-[#3D2F1F]">Statistiques</h1>
-        <AccountSwitcher value={account} onChange={setAccount} />
+        <span className="h-10 w-10" />
       </header>
 
       {/* Month navigator */}
