@@ -116,7 +116,8 @@ export function isTransferTx(t: Transaction): boolean {
  * - income: all income
  * - expense: spending only (excludes transfers)
  * - transfers: savings + investments going out
- * - balance: income - expense  (transfers are neutral, money still yours)
+ * - balance: income - expense - transfers
+ *   (money moved to savings/investments leaves the available balance)
  */
 export function computeTotals(list: Transaction[]) {
   let income = 0;
@@ -131,5 +132,5 @@ export function computeTotals(list: Transaction[]) {
       expense += t.amount;
     }
   });
-  return { income, expense, transfers, balance: income - expense };
+  return { income, expense, transfers, balance: income - expense - transfers };
 }
